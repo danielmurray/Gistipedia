@@ -1,18 +1,21 @@
-SD2013-UIUC
+Gistipedia: Multidimensional Wikipedia Exploration
 ===========
 
-Peking Solar Decathlon 2013 - UIUC
+CS 410 Final Project
+Daniel Murray
+Robert Stein
+Vignesh Raja
 
 ## Setup
 
 ### Install pip and virtualenv
 
-- `cd SD2013-UIUC/server`
+- `cd gistipedia/server`
 - `virtualenv2 .`
 - `bin/pip install -r requirements.txt`
 
 ### Running
 
-- `cd SD2013-UIUC/server`
+- `cd gistipedia/server`
 - `bin/python2 app.py`
 
