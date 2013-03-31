@@ -1,0 +1,38 @@
+{
+	"lights": {
+		"id": "lights",
+		"name": "Lights",
+		"color": [206, 218, 77]
+    },
+    "hvac": {
+    	"id": "hvac",
+		"name": "HVAC",
+		"color": [173, 50, 50]
+    },
+    "windoor": {
+    	"id": "windoor",
+		"name": "Windows <br />+ Doors",
+		"color": [223, 144, 1]
+    },
+    "power": {
+    	"id": "power",
+		"name": "Power",
+		"color": [85, 160, 85]
+
+    },
+    "water": {
+    	"id": "water",
+		"name": "Water",
+		"color": [84, 175, 226]
+    },
+    "opt": {
+    	"id": "opt",
+		"name": "Optimizer",
+		"color": [150, 111, 150]
+    },
+    "sched": {
+    	"id": "sched",
+		"name": "Scheduling",
+		"color": [58, 90, 58]
+    }
+}

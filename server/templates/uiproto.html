@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>etHOME</title>
+       
+    </head>
+    <body>
+         <div class = "viewport">
+         	<link href="/static/css/newui.css" rel="stylesheet" type="text/css">
+         	<div class="sidebarwrapper">
+	         	<div class="sidebar">
+	         		<ul class="nav">
+	         			<li>
+	         				<img class='home-nav' src='/static/images/logo.png'>
+	         			</li>
+	         			
+	         			<li class='nav-button icon-nav icon-nav-lights'>
+	         				<div class='icon-wrapper'>
+	         					<img src='/static/images/icons/bulb.png'>
+	         				</div>
+	         			</li>
+	         			
+	         			<li class='nav-button icon-nav icon-nav-hvac'>
+	         				<div class='icon-wrapper'>
+	         					<img src='/static/images/icons/fire.png'>
+	         				</div>
+	         			</li>
+	         			
+	         			<li class='nav-button icon-nav icon-nav-pv'>
+	         				<div class='icon-wrapper'>
+	         					<img src='/static/images/icons/brightness-high.png'>
+	         				</div>
+	         			</li>
+	         			
+	         			<li class='nav-button icon-nav icon-nav-power'>
+	         				<div class='icon-wrapper'>
+	         					<img src='/static/images/icons/power.png'>
+	         				</div>
+	         			</li>
+	         			
+	         			<li class='nav-button icon-nav icon-nav-water'>
+	         				<div class='icon-wrapper'>
+	         					<img src='/static/images/icons/droplet.png'>
+	         				</div>
+	         			</li>
+	         			
+	         			<li class='nav-button icon-nav icon-nav-opt'>
+	         				<div class='icon-wrapper'>
+	         					<img src='/static/images/icons/wallet.png'>
+	         				</div>
+	         			</li>
+	         			
+	         			<li class='nav-button icon-nav icon-nav-sched'>
+	         				<div class='icon-wrapper'>
+	         					<img src='/static/images/icons/reminder.png'>
+	         				</div>
+	         			</li>
+	        	</div>
+	        </div>
+         	<div class="dashboardwrapper">
+         		<div class='dashboard'>
+         			<div class='home-status-wrapper'>
+		         		<div class='header'>
+		         			<h1>etHOME</h1>
+		         		</div>
+		         		<div class='toppanes'>
+		         			<div class='lights status-pane nav-button'>
+		         				<h2>Lights</h2>
+		         				<div class="status-box">
+		         					<h4>
+		         						<span class='data'>12</span><br />
+		         						<span class='notdata'>lights on</span>
+		         					</h4>
+		         				</div>
+		         			</div>
+		         			<div class='hvac status-pane nav-button'>
+		         				<h2>HVAC</h2>
+		         				<div class="status-box">
+		         					<h4>
+		         						<span class='notdata'>outside</span><br />
+		         						<span class='data'>27</span>
+		         						<span class='unit'>°C</span>
+		         					</h4>
+		         					<h4>
+		         						<span class='notdata'>inside</span><br />
+		         						<span class='data'>23</span>
+		         						<span class='unit'>°C</span>
+		         					</h4>
+		         				</div>
+		         			</div>
+		         		</div>
+		         		<div class='middlepanes'>
+		         			<div class='pv status-pane nav-button'>
+		         				<h2>Generation</h2>
+		         				<div class="status-box">
+		         					<h4>
+		         						<!--
+		         						<span class='notdata'>production</span><br />
+		         						-->
+		         						<span class='data'>1.21</span>
+		         						<span class='unit'>GW</span>
+		         					</h4>
+		         				</div>
+		         			</div>
+		         			<div class='power status-pane nav-button'>
+		         				<h2>Consumption</h2>
+		         				<div class="status-box">
+		         					<h4>
+		         						<!--
+		         						<span class='notdata'>consumption</span><br />
+		         						-->
+		         						<span class='data'>2.42</span>
+		         						<span class='unit'>kW</span>
+		         					</h4>
+		         				</div>
+		         			</div>
+		         			<div class='water status-pane nav-button'>
+		         				<h2>Water</h2>
+		         				<div class="status-box">
+		         					<h4>
+		         						<!--
+		         						<span class='notdata'>today</span><br />
+		         						-->
+		         						<span class='data'>17</span>
+		         						<span class='unit'>L</span>
+		         					</h4>
+		         				</div>
+		         			</div>
+		         		</div>
+		         		<div class='bottompanes'>
+		         			<div class='opt status-pane nav-button'>
+		         				<h2>Optimizer</h2>
+		         				<ul class='tips'>
+		         					<li class='tip-box'>
+		         						<div class='just-the-tip'>
+		         							you left your toilet seat up
+		         						</div>
+		         					</li>
+		         					<li class='tip-box'>
+		         						<div class='just-the-tip'>
+		         							your dog just ripped major ass
+		         						</div>
+		         					</li>
+		         					<li class='tip-box'>
+		         						<div class='just-the-tip'>
+		         							your fly is un-done
+		         						</div>
+		         					</li>
+		         					<li class='tip-box'>
+		         						<div class='just-the-tip'>
+		         							chek yaself before ya wreck yaself
+		         						</div>
+		         					</li>
+		         				</ul>
+		         			</div>
+		         			<div class='sched status-pane nav-button'>
+		         				<img src ='/static/images/status.png'>
+		         				<h2>Current Mode</h2>
+		         			</div>
+		         		</div>
+		         	</div>
+	         	</div>
+         	</div>
+		</div>
+    </body>
+
+    <script src="/static/js/lib/jquery.min.js"></script>
+    <script src="/static/js/lib/jquery-ui.min.js"></script>
+
+    <script>
+
+    $(function(){
+    	console.log('hello world')
+    	$('.home-nav').on('click',function(){
+    		$('.icon-nav').animate({
+	          backgroundColor: 'transparent',
+	        },{ 
+	        	duration: 500, 
+	        	queue: false 
+	        });
+    	})
+
+    	$('.nav-button').on('click',function(){
+    		$('.icon-nav').animate({
+	          backgroundColor: 'transparent',
+	        },{ 
+	        	duration: 500, 
+	        	queue: false 
+	        });
+
+    		which = $(this).context.classList[0]
+    		
+    		if(which == 'nav-button'){
+	    		var icon = $(this);
+		    } else {
+		    	var icon = $('.icon-nav-'+which);
+		    }
+
+		    console.log(icon)
+
+		    var color = icon.css('border-right-color');
+	    		
+    		icon.animate({
+	          backgroundColor: color,
+	        },{ 
+	        	duration: 500, 
+	        	queue: false
+	        });
+    	})
+    });
+
+    </script>
+</html>

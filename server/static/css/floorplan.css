@@ -1,0 +1,20 @@
+#floorplandataoverlay{
+	position: absolute;
+}
+
+#floorplanholder{
+	opacity:1;
+	z-index: 1;
+}
+
+.shadowwrapper{
+	position: absolute;
+	bottom: 0%;
+	height: 1%;
+	width: 100%;
+}
+
+.shadowwrapper img{
+	height: 100%;
+	width: 100%;
+}

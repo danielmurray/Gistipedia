@@ -1,0 +1,20 @@
+.tablewrapper{
+	overflow-y:scroll;
+}
+
+.tablelist{
+	height: 100%;
+	width:100%;
+	list-style-type: none;
+}
+
+.tablelist li{
+	height:15%;
+	background-color: rgba(128, 128, 128, 0.40);
+	margin-bottom: 1%
+}
+
+
+.datawrapper{
+	
+}

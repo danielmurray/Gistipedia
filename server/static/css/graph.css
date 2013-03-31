@@ -1,0 +1,27 @@
+.graph{
+	height: 100%;
+	width:100%;
+}
+
+#graphholder{
+	float:left;
+	height:100%;
+	width:100%;
+}
+
+.graphbuttons{
+	float:left;
+	height: 100%;
+	width: 10%;
+}
+
+button.histdata{
+	float:left;
+	width: 100%;
+	height: 33%;
+    font-family: "Lato-thin";
+	font-size: 20px;
+	color: rgba(245, 245, 245, 0.2);
+	background-color: rgba(0,0,0,0);
+	border: solid 0px;
+}

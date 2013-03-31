@@ -1,0 +1,36 @@
+<link href="/static/css/nav.css" rel="stylesheet" type="text/css">
+<div id="sidebar-wrapper">
+	<img class="nav-button home-nav home" src="/static/images/logo.png">
+	<div class="sidebar">
+		<ul class="main-nav">
+
+<%
+_.each(this.panes, function(pane){
+%>
+
+ <style type="text/css">
+	<%='.' + pane.id%> {
+	    color: <%=rgbaToString(pane.color,1)%>;
+	    border-color: <%=rgbaToString(pane.color,1)%>;
+	}
+
+	<%='.' + pane.id%> .slider {
+	    background-color: <%=rgbaToString(pane.color,1)%>;
+	}
+</style>
+			<li class="nav-button icon-nav <%=pane.id%>">
+				<div class="slider">
+				</div>
+				<div class='icon-wrapper'>
+					<img src=<%='/static/images/icons/' + pane.id + '.png'%> >
+				</div>
+			</li>
+<%
+});
+%>	
+		</ul>
+	</div>
+</div>
+
+<div id="dashboard-wrapper">
+</div>

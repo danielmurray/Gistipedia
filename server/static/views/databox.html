@@ -1,0 +1,47 @@
+<link href="/static/css/databox.css" rel="stylesheet" type="text/css">
+<div class='header'>
+	<h2 class='subheader'><%=this.databox.id%></h2>
+	<div class='dataviewselection'>
+		<% 
+			var that = this
+			$.each(this.databox.subviews, function(i,subview){
+		%>
+
+		<span>
+		<input id="<%=subview.id+'/'+that.id%>" name="<%=that.id%>-view-selection" type="radio" value="table" class='contentselection'
+
+		<%
+			if(subview.id == that.databox.databoxcontent){
+		%>
+			checked="checked" 
+		<%
+		}	
+		%>	
+		
+		>
+		</input>
+		<label for="<%=subview.id+'/'+that.id%>"><%=subview.id%></label>
+		</span>
+
+		<%
+		});
+		%>
+	</div>
+</div>
+
+<div class='summarywrapper'>
+		<div class='summaryheader'>
+			TOTAL
+		</div>
+		<div class='summaryvalue'>
+			<span class='value'>
+				10
+			</span>
+			<span class='unit'>
+				kw
+			</span>
+		</div>
+</div>
+
+<div id='databoxcontentwrapper' class='content'>
+</div>

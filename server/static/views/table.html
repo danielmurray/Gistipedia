@@ -1,0 +1,17 @@
+<link href="/static/css/table.css" rel="stylesheet" type="text/css">
+<div class='tablewrapper'>
+	<ul class='tablelist'>
+		<% 
+        _.each(this.collection.models, function(data) {
+        %>
+
+        <li>
+        	<div id='<%=data.id%>' class='datawrapper' >
+        	</div>
+        </li>
+
+        <%
+        });
+        %>
+	</ul>
+</div>

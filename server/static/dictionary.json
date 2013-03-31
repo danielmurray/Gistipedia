@@ -1,0 +1,126 @@
+{
+  "in":{
+    "en": "in",
+    "zh": "内"
+  },
+  "out":{
+    "en": "out",
+    "zh": "外"
+  },
+  "hvac":{
+    "en": "hvac",
+    "zh": "hvac"
+  },
+  "power":{
+    "en": "power",
+    "zh": "功率"
+  },
+  "water":{
+    "en": "water",
+    "zh": "内"
+  },
+  "media":{
+    "en": "media",
+    "zh": "内"
+  },
+  "on":{
+    "en": "on",
+    "zh": "内"
+  },
+  "off":{
+    "en": "off",
+    "zh": "内"
+  },
+  "kitchen":{
+    "en": "kitchen",
+    "zh": "厨房"
+  },
+  "kitchenaccent":{
+    "en": "accent",
+    "zh": "色灯"
+  },
+  "kitchencounter":{
+    "en": "counter",
+    "zh": "对抗"
+  },
+  "kitchentrack":{
+    "en": "track",
+    "zh": "天花板"
+  },
+  "kitchenpendant":{
+    "en": "pendant",
+    "zh": "垂饰"
+  },
+  "bathroom":{
+    "en": "bathroom",
+    "zh": "浴室"
+  },
+  "bathroomsconces":{
+    "en": "sconces",
+    "zh": "壁灯"
+  },
+  "bathroomtrack":{
+    "en": "track",
+    "zh": "天花板"
+  },
+  "mechanical":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "washer":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "bedroom":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "bedroomaccent":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "bedroomsconces":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "hallway":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "hallwaytrack":{
+    "en": "track",
+    "zh": "天花板"
+  },
+  "hallwayfixture":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "livingroom":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "livingroomaccent":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "livingroomtrack":{
+    "en": "track",
+    "zh": "天花板"
+  },
+  "closet":{
+    "en": "closet",
+    "zh": "壁橱"
+  },
+  "master":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "masteraccent":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  },
+  "mastersconces":{
+    "en": "tobereplaced",
+    "zh": "tobereplaced"
+  }
+}

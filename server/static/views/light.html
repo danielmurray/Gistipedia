@@ -1,0 +1,33 @@
+<link href="/static/css/light.css" rel="stylesheet" type="text/css">
+<style>
+	
+	
+</style>
+
+<div class='light'>
+    <button class='lightname <%=this.type%> <%=this.status%>'>
+    <%=this.model.id%>
+    </button>
+    <div class='lightcontrolwrapper'>
+        <div class='sliderholder'>
+        </div>
+    </div>
+</div>
+<% 
+if(this.model.get('type') == 'rgb'){
+%>
+	<style>
+		.lightname.rgb.on{
+			color: <%=this.colorhex%>;
+		}
+	
+		.sliderholder .ui-slider-range{
+		   	background: <%=this.colorhex%>;
+		}
+	</style>
+
+	<div class='hslslider'>
+	</div>
+<%
+}
+%>

@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/underscore.js"></script>
+    <script src="/static/js/backbone.js"></script>
+    <script src="/static/js/socket.io.js"></script>
+    <script src="/static/js/backbone-ws.js"></script>
+    <script type="text/javascript">
+      var DebugModel = ModelWS.extend({
+        defaults: function() {
+          return {"val1": "none"}
+        }
+      });
+
+      var DebugList = CollectionWS.extend({
+        url: "/debug",
+
+        model: DebugModel
+      });
+
+      var Debug = new DebugList();
+      
+      $(function () {
+        var DebugView = Backbone.View.extend({
+          el: "#mainview",
+
+          events: {
+            "click li": "update"
+          },
+
+          initialize: function(collection) {
+            this.collection = collection;
+            this.collection.on("change", this.render, this);
+            this.collection.on("add", this.render, this);
+            this.collection.on("reset", this.render, this);
+            var tpl = $('#mainview-template').html();
+            this.template = _.template(tpl);
+          },
+
+          render: function() {
+            this.$el.html(this.template({models: this.collection}));
+            return this;
+          },
+
+          update: function(e) {
+            var id = $(e.currentTarget).attr("id");
+            var model = this.collection.get(id);
+            model.save({"val1": uid()});
+          }
+        });
+        var debugView = new DebugView(Debug);
+        Debug.fetch();
+      });
+    </script>
+  </head>
+  <body>
+    <h1>SD2013 Websocket Debugger</h1>
+    <div id="mainview">
+    </div>
+    <script id="mainview-template" type="text/template">
+      <ul><h2>Models:</h2>
+      <% models.each(function (m) { %>
+        <li id='<%= m.get("id") %>'><%= m.get("id") %> = <%= m.get("val1") %></li>
+      <% }); %>
+      </ul>
+    </script>
+  </body>
+</html>
