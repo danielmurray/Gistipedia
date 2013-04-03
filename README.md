@@ -18,5 +18,5 @@ CS 410 Final Project
 
 - `cd gistipedia/server`
 - `bin/python2 app.py`
-- localhost:5000
+- `localhost:5000`
 
