@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>etHOME</title>
+        <title>MediaWiki</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1" />
         <meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -12,17 +12,56 @@
         <meta name="format-detection" content="telephone=no">
         
         <link rel="icon" href="/static/images/favicon.ico"> 
-        <!--<link href="/static/css/style.css" rel="stylesheet" type="text/css">-->
         <link href="/static/css/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css">
+         <script src="/static/js/lib/jquery.min.js"></script>
     </head>
 
     <body>
-         <div id="viewport">
-            Hello World, If you see this the server should be working properly
-         </div>
-    </body>
+      <div id="viewport">
+        {{message}}
+        <br />
+        Query: <input type="text" name="query" id='query'><br>
+        <button id="submit">Submit</button>
+      </div>
+      <div>
+        <h1>Search results</h1>
+        <ol id="searchresults">
+        </ol>
+      </div>
 
-    <script src="/static/js/lib/jquery.min.js"></script>
+      <script>
+        console.log( {{ wikicontent}} )
+
+        $('#submit').on('click', function(){
+          request = $('#query').serialize();
+          $.ajax({
+            type: 'GET',
+            url: '/query/',
+            data: request,
+            dataType: 'json',
+            async: false,
+            success: function(data){
+              addSearchResults(data.query.search);
+            },
+            error: function(data){
+              console.log('Request Failed');
+            }
+          });
+        });
+
+        var addSearchResults = function(searchresults){
+          $('#searchresults').empty();
+
+          $(searchresults).each(function(i,result){
+            console.log(result)
+            var datum = $('<a href="' + result.title + '"><li>'+ result.title + '</li></a>')
+            $('#searchresults').append( datum);
+          });
+        }
+      </script>
+
+    </body>
+   
     <script src="/static/js/lib/underscore.js"></script>
     <script src="/static/js/lib/backbone.js"></script>
     <script src="/static/js/lib/socket.io.js"></script>    
@@ -37,8 +76,4 @@
     <script src="/static/js/models.js"></script>
     <script src="/static/js/collections.js"></script>
 
-    <!-- Made a new view.js -->
-    <script src="/static/js/view.js"></script>
-
-    <script src="/static/js/controller.js"></script>
 </html>
