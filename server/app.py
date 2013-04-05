@@ -24,15 +24,13 @@ def init():
 @app.route('/query/', methods=['GET'])
 def search():
     query = request.args.get('query');
-    print(request.args)
     wikicontent = wikipedia.findArticles(query)
     return json.dumps(wikicontent)
 
 @app.route('/<pageTitle>')
 def content(pageTitle):
-    print(pageTitle)
     wikicontent = wikipedia.queryText(pageTitle)
-    return render_template('wikidump.html', wikicontent=json.dumps(wikicontent))
+    return render_template('wikidump.html', wikicontent=wikicontent)
 
 
 if __name__ == '__main__':

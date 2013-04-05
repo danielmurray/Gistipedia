@@ -54,7 +54,7 @@
 
           $(searchresults).each(function(i,result){
             console.log(result)
-            var datum = $('<a href="' + result.title + '"><li>'+ result.title + '</li></a>')
+            var datum = $('<li><a href="' + result.title + '">'+ result.title + '</a></li>')
             $('#searchresults').append( datum);
           });
         }
