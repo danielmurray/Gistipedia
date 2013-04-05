@@ -74,6 +74,10 @@ def findArticles(query):
         raise SSMWError(r.text)
     return r.json()
 
+def findLinks(self, s):
+	linksWithMarkup = re.findall('\[\[[\S\s]*?\]\]',s)
+	return linksWithMarkup[2:-2]
+
 def queryMarkup(pageTitle):
     """
     Acquire Wikipage by 
@@ -97,8 +101,60 @@ def fetch(url, params=None):
 		raise SSMWError(r.text)
 	return r
 
+def fetchRawText(self, pageTitle):
+  		wikimarkup = self.queryMarkup(pageTitle)
+  		return self.markupToRawText(wikimarkup, pageTitle)
+
+def docData(self, text, pageTitle):
+	wikimarkup = text
+	wikimarkup = self.removeCitationRefs(text)		
+	wikimarkup = self.removeComments(wikimarkup)
+	wikimarkup = self.articleBody(wikimarkup,pageTitle)
+	wikimarkup = self.removeTemplates(wikimarkup)
+	
+	wikimarkup = self.rawText(wikimarkup)
+	return wikimarkup
+
+def removeCitationRefs(self, text):
+	"""
+	Templates are a rat's nest of content, external links
+	and unneccesary content, this code exlcudes templates from
+	the raw text of the document
+	"""
+	return re.sub('<ref[\S\s]*?</ref>', ' ', text)
+
+def removeComments(self, text):
+	"""
+	Sometimes Wiki authors will place comments in the markup
+	as messages to the other authors. This removes those comments
+	as they may not always be relevant to the document
+	"""
+	return re.sub('<!--[\S\s]*?-->', ' ', text)
+
+def articleBody(self, text, pageTitle):
+	page = text.split("'''"+pageTitle+"'''")
+	body = page[-1]
+	body = body.split("==See also==")[0]
+	body = body.split("== See also ==")[0]
+	return body
+
+def removeTemplates(self, text):
+	"""
+	Templates our bookended by {{ }} and these elements
+	may be nested, and RegEx sucks at parsing nested tags.
+	This implementation isn't perfect but it accomplishes what we
+	need here.
+	"""
+	return re.sub('{{[\S\s]*?}}', ' ', text)
+
+def rawText(self, text):
+	"""
+	Only keeps the words, spaces, and digits in the file
+	"""
+	return re.sub('[^\w\s]', ' ', text)
+		
 if __name__ == '__main__':
-	pageTitle = 'China'
+	pageTitle = 'Taiwan'
 	wikimarkup = queryMarkup(pageTitle)
 	norefs = re.sub('<ref[\S\s]*?</ref>', ' ', wikimarkup)
 	nocomments = re.sub('<!--[\S\s]*?-->', ' ', norefs)

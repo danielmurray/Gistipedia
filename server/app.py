@@ -29,7 +29,7 @@ def search():
 
 @app.route('/<pageTitle>')
 def content(pageTitle):
-    wikicontent = wikipedia.queryText(pageTitle)
+    wikicontent = wikipedia.fetchText(pageTitle)
     return render_template('wikidump.html', wikicontent=wikicontent)
 
 
