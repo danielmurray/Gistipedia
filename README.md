@@ -2,9 +2,9 @@ Gistipedia: Multidimensional Wikipedia Exploration
 ===========
 
 CS 410 Final Project
-Daniel Murray
-Robert Stein
-Vignesh Raja
+- Daniel Murray
+- Robert Stein
+- Vignesh Raja
 
 ## Setup
 
@@ -18,4 +18,5 @@ Vignesh Raja
 
 - `cd gistipedia/server`
 - `bin/python2 app.py`
+- `localhost:5000`
 
