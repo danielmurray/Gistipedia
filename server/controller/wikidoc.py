@@ -29,6 +29,7 @@ class WikiDoc():
 		wikimarkup = self.removeCitationRefs(wikimarkup)		
 		wikimarkup = self.removeComments(wikimarkup)
 		wikimarkup = self.removeImages(wikimarkup)
+		wikimarkup = re.sub('\\n','',wikimarkup)
 		return wikimarkup
 
 	def docLinks(self, text):
@@ -38,7 +39,7 @@ class WikiDoc():
 		returnedLinks = []
 		for i, link in enumerate(links):
 			# links[i] = re.split('\|', link)[0]
-			links[i] = link.split('|')[0]
+			links[i] = link.split('|')[0].lower()
   		return links
 
 	def removeCitationRefs(self, text):
@@ -152,8 +153,9 @@ class WikiDoc():
 	def rawText(self, text):
 		"""
 		Only keeps the words, spaces, and digits in the file
+		Also converts to lower case
 		"""
-		return re.sub('[^\w\s]', ' ', text)
+		return re.sub('[^\w\s]', ' ', text).lower()
 
   	def findArticles(self, query):
 	    """
@@ -198,62 +200,9 @@ class WikiDoc():
 		return r
 
 if __name__ == '__main__':
-	wikipedia = ''
-	wikipedia += WikiDoc('Life').jsonify()['text']
-	wikipedia += WikiDoc('Philosophy').jsonify()['text']
-	wikipedia += WikiDoc('Reality').jsonify()['text']
-	wikipedia += WikiDoc('Language').jsonify()['text']
-	wikipedia += WikiDoc('Art').jsonify()['text']
-	wikipedia += WikiDoc('Europe').jsonify()['text']
-	wikipedia += WikiDoc('Asia').jsonify()['text']
-	wikipedia += WikiDoc('North America').jsonify()['text']
-	wikipedia += WikiDoc('Science').jsonify()['text']
-	wikipedia += WikiDoc('Math').jsonify()['text']
-	wikipedia += WikiDoc('History').jsonify()['text']
-	wikipedia += WikiDoc('Psychology').jsonify()['text']
-	wikipedia += WikiDoc('Literature').jsonify()['text']
-	wikipedia += WikiDoc('Africa').jsonify()['text']
-	wikipedia += WikiDoc('Physics').jsonify()['text']
-	wikipedia += WikiDoc('Chemistry').jsonify()['text']
-	wikipedia += WikiDoc('Sociology').jsonify()['text']
-	wikipedia += WikiDoc('Business').jsonify()['text']
-	wikipedia += WikiDoc('Politics').jsonify()['text']
-	wikipedia += WikiDoc('Engineering').jsonify()['text']
-	wikipedia += WikiDoc('Biology').jsonify()['text']
-	wikipedia += WikiDoc('Space').jsonify()['text']
-	wikimarkup = re.sub('\\n','',wikipedia)
-	words = re.split(' ', wikimarkup)
-	#words = WikiDoc('China').jsonify()['links']
-	backgroundCount = len(words)
-	backgroundLanguagModel = {}
-	for word in words:
-		if word != '':
-			if backgroundLanguagModel.get(word) != None:
-				backgroundLanguagModel[word] += 1
-			else:
-				backgroundLanguagModel[word] = 1
-	print backgroundLanguagModel.get('Mao')
-	wikipedia = WikiDoc('China')
-	# print json.dumps(wikipedia.jsonify())
-	wikimarkup = re.sub('\\n','',wikipedia.jsonify()['text'])
-	words = re.split(' ', wikimarkup)
-	# words = WikiDoc('The Great Leap Forward').jsonify()['links']
-	unigramCount = len(words)
-	unigramLanguagModel = {}
-	for word in words:
-		if word != '':
-			if unigramLanguagModel.get(word) != None:
-				unigramLanguagModel[word] += 1
-			else:
-				unigramLanguagModel[word] = 1
-	normalizedLanguageModel = {}
-	for word in unigramLanguagModel:
-		if backgroundLanguagModel.get(word) == None:
-			backProb = 1/float(backgroundCount + 20000)
-		else:
-			backProb = (backgroundLanguagModel[word] + 1)/float(backgroundCount + 20000)
-		normalizedLanguageModel[word] = (unigramLanguagModel[word]/float(unigramCount))/float(backProb)
-	sortedLanguageModel = sorted(normalizedLanguageModel.iteritems(), key=lambda item: -item[1])
-	for word in sortedLanguageModel:
-		print word[0].encode('ascii','ignore') , word[1]
+	wikipedia = WikiDoc('National Palace Museum')
+	# for link in wikipedia.links:
+	# 	print link
+	print wikipedia.textAndLinks.encode('ascii','ignore')
+
 
