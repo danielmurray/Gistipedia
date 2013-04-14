@@ -1,1 +1,1 @@
-from mediawiki import MediaWiki
+from wikigraph import WikiGraph

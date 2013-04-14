@@ -41,7 +41,7 @@
             dataType: 'json',
             async: false,
             success: function(data){
-              addSearchResults(data.query.search);
+              console.log(data);
             },
             error: function(data){
               console.log('Request Failed');
@@ -55,7 +55,7 @@
           $(searchresults).each(function(i,result){
             console.log(result)
             var datum = $('<li><a href="' + result.title + '">'+ result.title + '</a></li>')
-            $('#searchresults').append( datum);
+            $('#searchresults').append(datum);
           });
         }
       </script>

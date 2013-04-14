@@ -2,43 +2,34 @@ import requests
 import json
 import re
 
-class MediaWiki():
-	url = 'http://en.wikipedia.org/w/api.php'
+class WikiDoc():
 
-  	def __init__(self):
-		x=0
-		#print('initialized')
+  	def __init__(self, query):
+  		self.url = 'http://en.wikipedia.org/w/api.php'
+  		self.searchResults = self.findArticles(query)
+  		#Best Match from wikipedia
+		self.pageTitle = self.searchResults['query']['search'][0]['title']
+		self.markup = self.queryMarkup(self.pageTitle)
+  		self.textAndLinks = self.preFormat(self.markup, self.pageTitle)
+  		self.links = self.docLinks(self.textAndLinks)
+  		self.text = self.rawText(self.textAndLinks)
 
-  	def fetchDocData(self, pageTitle):
-  		wikimarkup = self.queryMarkup(pageTitle)
-  		return self.docData(wikimarkup, pageTitle, 'all')
+	def jsonify(self):
+		jsonGoodies = {
+			'title': self.pageTitle,
+			'text': self.text,
+			'links': self.links,
+		}
+		return jsonGoodies
 
-  	def fetchText(self, pageTitle):
-  		wikimarkup = self.queryMarkup(pageTitle)
-  		return self.docData(wikimarkup, pageTitle, 'text')
-
-  	def fetchLinks(self, pageTitle):
-  		wikimarkup = self.queryMarkup(pageTitle)
-  		return self.docData(wikimarkup, pageTitle, 'links')
-
-  	def docData(self, text, pageTitle, desriredContent):
+  	def preFormat(self, text, pageTitle):
   		wikimarkup = text
    		wikimarkup = self.articleBody(wikimarkup,pageTitle)
 		wikimarkup = self.tagParse('{{', '}}', wikimarkup, 'delete')
 		wikimarkup = self.removeCitationRefs(wikimarkup)		
 		wikimarkup = self.removeComments(wikimarkup)
 		wikimarkup = self.removeImages(wikimarkup)
-		if desriredContent == 'links':
-			links = self.docLinks(wikimarkup)
-			return links
-		elif desriredContent == 'text':
-			wikimarkup = self.rawText(wikimarkup)
-  			return wikimarkup
-  		else:
-  			doc = []
-  			doc['links'] = self.docLinks(wikimarkup)
-  			doc['text'] = self.rawText(wikimarkup)
-			return doc
+		return wikimarkup
 
 	def docLinks(self, text):
   		wikimarkup = text
@@ -174,7 +165,7 @@ class MediaWiki():
 			"action": 'query',
 			"list": 'search',
 			"srlimit": 10,
-			"srsearch": str(query),
+			"srsearch": query,
 			"srprop": 'title|wordcount|snippet|url'
 		}
 	    r = self.fetch(self.url, searchparams)
@@ -202,11 +193,67 @@ class MediaWiki():
 	def fetch(self, url, params=None):	
 		r = requests.post(url, params=params)
 		if not r.ok:
+			#Here we should put more intense error handling, perhaps passing a message to the front end
 			raise SSMWError(r.text)
 		return r
 
 if __name__ == '__main__':
-	wikipedia = MediaWiki()
-	pageTitle = 'China'
-	wikimarkup = wikipedia.fetchDocData(pageTitle)
-	print json.dumps(wikimarkup)
+	wikipedia = ''
+	wikipedia += WikiDoc('Life').jsonify()['text']
+	wikipedia += WikiDoc('Philosophy').jsonify()['text']
+	wikipedia += WikiDoc('Reality').jsonify()['text']
+	wikipedia += WikiDoc('Language').jsonify()['text']
+	wikipedia += WikiDoc('Art').jsonify()['text']
+	wikipedia += WikiDoc('Europe').jsonify()['text']
+	wikipedia += WikiDoc('Asia').jsonify()['text']
+	wikipedia += WikiDoc('North America').jsonify()['text']
+	wikipedia += WikiDoc('Science').jsonify()['text']
+	wikipedia += WikiDoc('Math').jsonify()['text']
+	wikipedia += WikiDoc('History').jsonify()['text']
+	wikipedia += WikiDoc('Psychology').jsonify()['text']
+	wikipedia += WikiDoc('Literature').jsonify()['text']
+	wikipedia += WikiDoc('Africa').jsonify()['text']
+	wikipedia += WikiDoc('Physics').jsonify()['text']
+	wikipedia += WikiDoc('Chemistry').jsonify()['text']
+	wikipedia += WikiDoc('Sociology').jsonify()['text']
+	wikipedia += WikiDoc('Business').jsonify()['text']
+	wikipedia += WikiDoc('Politics').jsonify()['text']
+	wikipedia += WikiDoc('Engineering').jsonify()['text']
+	wikipedia += WikiDoc('Biology').jsonify()['text']
+	wikipedia += WikiDoc('Space').jsonify()['text']
+	wikimarkup = re.sub('\\n','',wikipedia)
+	words = re.split(' ', wikimarkup)
+	#words = WikiDoc('China').jsonify()['links']
+	backgroundCount = len(words)
+	backgroundLanguagModel = {}
+	for word in words:
+		if word != '':
+			if backgroundLanguagModel.get(word) != None:
+				backgroundLanguagModel[word] += 1
+			else:
+				backgroundLanguagModel[word] = 1
+	print backgroundLanguagModel.get('Mao')
+	wikipedia = WikiDoc('China')
+	# print json.dumps(wikipedia.jsonify())
+	wikimarkup = re.sub('\\n','',wikipedia.jsonify()['text'])
+	words = re.split(' ', wikimarkup)
+	# words = WikiDoc('The Great Leap Forward').jsonify()['links']
+	unigramCount = len(words)
+	unigramLanguagModel = {}
+	for word in words:
+		if word != '':
+			if unigramLanguagModel.get(word) != None:
+				unigramLanguagModel[word] += 1
+			else:
+				unigramLanguagModel[word] = 1
+	normalizedLanguageModel = {}
+	for word in unigramLanguagModel:
+		if backgroundLanguagModel.get(word) == None:
+			backProb = 1/float(backgroundCount + 20000)
+		else:
+			backProb = (backgroundLanguagModel[word] + 1)/float(backgroundCount + 20000)
+		normalizedLanguageModel[word] = (unigramLanguagModel[word]/float(unigramCount))/float(backProb)
+	sortedLanguageModel = sorted(normalizedLanguageModel.iteritems(), key=lambda item: -item[1])
+	for word in sortedLanguageModel:
+		print word[0].encode('ascii','ignore') , word[1]
+
