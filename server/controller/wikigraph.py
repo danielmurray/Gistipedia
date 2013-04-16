@@ -9,8 +9,10 @@ class WikiGraph():
   		self.text  = self.rootDoc.text
   		self.links = self.rootDoc.links
   		self.wikiDocs = []
-  		self.topWords = self.findTopWords(query) #Soon we may add the option to pass a variable
-  		self.topLinks = self.findTopLinks(query, self.topWords)
+  		# self.topWords = self.findTopWords(query) #Soon we may add the option to pass a variable
+  		# self.topLinks = self.findTopLinks(query, self.topWords)
+  		self.sortLinks = self.languageModel(self.links)
+  		self.sortLinks = sorted(self.sortLinks.iteritems(), key=lambda item: -item[1])
 
 
   	def findTopWords(self, query):
@@ -122,10 +124,10 @@ class WikiGraph():
 
 		
 if __name__ == '__main__':
-	wikipedia = WikiGraph('Japan')
+	wikipedia = WikiGraph('China')
 	# for word in wikipedia.topWords:
 	# 	print word[0].encode('ascii','ignore'), word[1]
-	for link in wikipedia.topLinks:
-		print link.encode('ascii','ignore')
+	for link in wikipedia.sortLinks:
+		print link[0].encode('ascii','ignore'), link[1]
 
 
