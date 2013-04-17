@@ -10,9 +10,13 @@ class WikiDoc():
   		#Best Match from wikipedia
 		self.pageTitle = self.searchResults['query']['search'][0]['title']
 		self.markup = self.queryMarkup(self.pageTitle)
+  		#Footer is filled in articleBody, using this subset of text decreases runtime
+  		#for finding categories and external links
+		self.footer = ''
   		self.textAndLinks = self.preFormat(self.markup, self.pageTitle)
   		self.links = self.docLinks(self.textAndLinks)
   		self.text = self.rawText(self.textAndLinks)
+  		self.categories = self.docCategories(self.footer)
 
 	def jsonify(self):
 		jsonGoodies = {
@@ -33,14 +37,23 @@ class WikiDoc():
 		return wikimarkup
 
 	def docLinks(self, text):
+		if text == '':
+			return []
   		wikimarkup = text
-		#links = re.findall('\[\[[\S\s]*?\]\]',wikimarkup)
 		links = re.findall('.*?\[\[(.*?)\]\].*?',wikimarkup)
-		returnedLinks = []
 		for i, link in enumerate(links):
-			# links[i] = re.split('\|', link)[0]
 			links[i] = link.split('|')[0].lower()
   		return links
+
+  	def docCategories(self, text):
+  		if text == '':
+			return []
+		#Text here should be the articles footer initialized in article body
+  		wikimarkup = text
+		categories = re.findall('.*?\[\[Category:(.*?)\]\].*?',wikimarkup)
+		for i, category in enumerate(categories):
+			categories[i] = category.split('|')[0].lower()
+  		return categories
 
 	def removeCitationRefs(self, text):
 		"""
@@ -59,10 +72,23 @@ class WikiDoc():
 		return re.sub('<!--[\S\s]*?-->', ' ', text)
 
 	def articleBody(self, text, pageTitle):
+		"""
+		Splits the article into two parts, the authored text
+		and the footer which holds external links and citations, this footer 
+		also holds the page's categories, so we store this second part
+		to self.footer to be used to acquire these categories later
+		"""
 		page = text.split("'''"+pageTitle+"'''")
 		body = page[-1]
-		body = body.split("==See also==")[0]
-		body = body.split("== See also ==")[0]
+		referenceTags = [
+			"==References==",
+			"== References =="
+		]
+		for referenceTag in referenceTags:
+			page = body.split(referenceTag)
+			body = page[0]
+			if len(page) > 1:
+				self.footer = page[1]
 		return body
 
 	def tagParse(self, openingTag, closingTag, text, action):
@@ -200,9 +226,11 @@ class WikiDoc():
 		return r
 
 if __name__ == '__main__':
-	wikipedia = WikiDoc('National Palace Museum')
+	wikipedia = WikiDoc('Flea')
 	# for link in wikipedia.links:
 	# 	print link
-	print wikipedia.textAndLinks.encode('ascii','ignore')
+	for category in wikipedia.categories:
+		print category
+
 
 
