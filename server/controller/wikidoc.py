@@ -1,3 +1,4 @@
+from random import choice
 import requests
 import json
 import re
@@ -11,18 +12,24 @@ class WikiDoc():
 		self.pageTitle = self.searchResults['query']['search'][0]['title']
 		self.markup = self.queryMarkup(self.pageTitle)
   		#Footer is filled in articleBody, using this subset of text decreases runtime
-  		#for finding categories and external links
 		self.footer = ''
   		self.textAndLinks = self.preFormat(self.markup, self.pageTitle)
   		self.links = self.docLinks(self.textAndLinks)
   		self.text = self.rawText(self.textAndLinks)
   		self.categories = self.docCategories(self.footer)
+  		self.images = self.imageURLS(self.pageTitle)
+  		randomImage = choice(self.images)
+  		# self.randomImageURL = self.createImageURL( randomImage['file'], randomImage['height'], randomImage['width']  )
+  		self.randomImageURL = self.createImageURL( randomImage['file'], '800px', '800px' )
 
 	def jsonify(self):
 		jsonGoodies = {
 			'title': self.pageTitle,
 			'text': self.text,
 			'links': self.links,
+			'categories': self.categories,
+			'images': self.images,
+			'randomImageURL': self.randomImageURL
 		}
 		return jsonGoodies
 
@@ -54,6 +61,27 @@ class WikiDoc():
 		for i, category in enumerate(categories):
 			categories[i] = category.split('|')[0].lower()
   		return categories
+
+  	def imageURLS(self, pageTitle):
+		wikiObject = self.findImages(pageTitle)
+		acceptableMimes = [
+			'jpeg',
+			'png',
+			'gif'
+		]
+		imageDicts= []
+		for imageURL in wikiObject.iteritems():
+			if imageURL[1].get('imageinfo'):
+				imageinfo = imageURL[1]['imageinfo'][0]
+				if any(x in imageinfo['mime'] for x in acceptableMimes):
+					imageDict = {}
+					imageDict['file'] = imageURL[1]['title']
+					imageDict['title'] = imageDict['file'].split(':')[1]
+					imageDict['height'] = imageinfo['height']
+					imageDict['width'] = imageinfo['width']
+					imageDict['size'] = imageinfo['size']
+					imageDicts.append(imageDict)
+		return imageDicts
 
 	def removeCitationRefs(self, text):
 		"""
@@ -100,39 +128,30 @@ class WikiDoc():
 		"""
 		openingIndices = [m.start() for m in re.finditer(openingTag, text)]
 		closingIndices = [m.start() for m in re.finditer(closingTag, text)]
-		#print openingIndices
-		#print closingIndices
 		openIndexItr = 0
 		closeIndexItr = 0
 		depthCounter = 0
 		stringIndices = [
 			[0,0]
 		]
-		#print stringIndices
 		while openIndexItr < len(openingIndices) and closeIndexItr < len(closingIndices):
-			#print openingIndices[openIndexItr], closingIndices[closeIndexItr]
-			#print openIndexItr, closeIndexItr, depthCounter
 			if openIndexItr+1 < len(openingIndices) and openingIndices[openIndexItr] < closingIndices[closeIndexItr]:
 				if depthCounter == 0:
 					stringIndices.append([openingIndices[openIndexItr]-1,1])
-					#print 'appended',[openingIndices[openIndexItr]-1,1]
 				depthCounter += 1
 				openIndexItr += 1
 			else:
 				if depthCounter < 2:
 					stringIndices.append([closingIndices[closeIndexItr]+len(closingTag),0])
-					#print 'appended',[closingIndices[closeIndexItr]+2,0]
 				depthCounter -= 1
 				closeIndexItr += 1
 		stringIndices.append([len(text),1])
-		#print stringIndices
 		finalStringIndices = []
 		for indexTuples in stringIndices:
 			if indexTuples[1] == 0:
 				finalStringIndices.append([indexTuples[0], None])
 			elif finalStringIndices > 0: #indexTuples[1] must equal 
 				finalStringIndices[-1][1] = indexTuples[0]
-		# print finalStringIndices
 		if action == 'content':
 			return self.tagContent( text, finalStringIndices, openingTag, closingTag)
 		else: 
@@ -183,6 +202,44 @@ class WikiDoc():
 		"""
 		return re.sub('[^\w\s]', ' ', text).lower()
 
+  	def findImages(self, pageTitle):
+	    """
+	    Acquire Wikipage's Images witha list of URLs 
+	    """
+	    queryparams = {
+			"format": 'json',
+			"action": 'query',
+			"titles": pageTitle,
+
+			"generator": 'images',
+			"gimlimit": 500,
+			"prop": 'imageinfo',
+			"iiprop": 'mime|size'
+		}
+	    r = self.fetch(self.url, queryparams)
+	    if not r.json():
+	        raise SSMWError(r.text)
+	    return r.json()['query']['pages']
+
+	def createImageURL(self, fileTitle, height, width):
+	    """
+	    Returns the link in the Wikipedia commons to the 
+	    image with the correct height and width
+	    """
+	    queryparams = {
+			"format": 'json',
+			"action": 'query',
+			"titles": fileTitle,
+			"prop": 'imageinfo',
+			"iiprop": 'url',
+			"iiurlwidth": width,
+			"iiurlheight": height
+		}
+	    r = self.fetch(self.url, queryparams)
+	    if not r.json():
+	        raise SSMWError(r.text)
+	    return r.json()['query']['pages'].itervalues().next()['imageinfo'][0]['thumburl']
+
   	def findArticles(self, query):
 	    """
 	    Looks for the top ten articles that match the search
@@ -226,11 +283,12 @@ class WikiDoc():
 		return r
 
 if __name__ == '__main__':
-	wikipedia = WikiDoc('Flea')
+	wikipedia = WikiDoc('Japan')
+	print wikipedia.randomImageURL
 	# for link in wikipedia.links:
 	# 	print link
-	for category in wikipedia.categories:
-		print category
+	# for category in wikipedia.categories:
+	# 	print category
 
 
 

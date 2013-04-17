@@ -20,10 +20,11 @@ def init():
 def search():
     query = request.args.get('query')
     wikiPage = controller.WikiDoc(query)
-    return json.dumps(wikiPage.jsonify())
+    return json.dumps(wikiPage)
 
 @app.route('/<pageTitle>')
 def content(pageTitle):
+    print pageTitle
     wikiPage = controller.WikiDoc(pageTitle)
     return render_template('wikidump.html', wikicontent=wikiPage.jsonify())
 
