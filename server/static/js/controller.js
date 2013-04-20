@@ -35,7 +35,6 @@ $(function() {
     displayUrl: function(path) {
       //console.log("Displaying", path, this);
       // split the path by "/"s, then recursively create the new view
-
       var pathParts = path.split("/");
       // find the path difference
       // []
@@ -96,23 +95,25 @@ $(function() {
     router.currentPath = str.split("/");
   };
 
+  Backbone.history.start();
+  
   // Only fetch non-debug collections
-  var collections = [window.Lights];
-  var waitingOn = collections.length;
-  var start = function() {
-    waitingOn = waitingOn - 1;
-    //console.log("Waiting on", waitingOn);
-    if (waitingOn == 0) {
-      Backbone.history.start();
-       //console.log("Started router", router);
-    }
-  }
+  // var collections = [];
+  // var waitingOn = collections.length;
+  // var start = function() {
+  //   waitingOn = waitingOn - 1;
+  //   console.log("Waiting on", waitingOn);
+  //   if (waitingOn == 0) {
+  //     Backbone.history.start();
+  //      //console.log("Started router", router);
+  //   }
+  // }
 
-  for (var col in collections) {
-    if (collections[col].size() == 0) {
-      collections[col].fetch({
-        success: start
-      });
-    }
-  }
+  // for (var col in collections) {
+  //   if (collections[col].size() == 0) {
+  //     collections[col].fetch({
+  //       success: start
+  //     });
+  //   }
+  // }
 });

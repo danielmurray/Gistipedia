@@ -10,23 +10,21 @@ import controller
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+app.picOfTheDay = controller.PicOfTheDay()
 
 @app.route('/')
 def init():
-    message = 'Enter Query'
-    return render_template('test.html', message=message)
+    return render_template('index.html')
 
-@app.route('/query/', methods=['GET'])
-def search():
-    query = request.args.get('query')
-    wikiPage = controller.WikiDoc(query)
-    return json.dumps(wikiPage)
+@app.route('/picoftheday/', methods=['GET'])
+def backgroundImage():
+    return json.dumps(app.picOfTheDay.jsonify())
 
-@app.route('/<pageTitle>')
-def content(pageTitle):
-    print pageTitle
-    wikiPage = controller.WikiDoc(pageTitle)
-    return render_template('wikidump.html', wikicontent=wikiPage.jsonify())
+
+@app.route('/graph/<query>', methods=['GET'])
+def content(query):
+    wikiPage = controller.WikiGraph(query)
+    return json.dumps(wikiPage.jsonify())
 
 
 if __name__ == '__main__':

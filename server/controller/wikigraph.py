@@ -8,12 +8,18 @@ class WikiGraph():
   		self.rootDoc = WikiDoc(query)
   		self.text  = self.rootDoc.text
   		self.links = self.rootDoc.links
-  		self.wikiDocs = []
-  		self.topWords = self.findTopWords(query) #Soon we may add the option to pass a variable
+  		# self.wikiDocs = []
+  		# self.topWords = self.findTopWords(query) #Soon we may add the option to pass a variable
   		# self.topLinks = self.findTopLinks(query, self.topWords)
   		self.sortLinks = self.languageModel(self.links)
   		self.sortLinks = sorted(self.sortLinks.iteritems(), key=lambda item: -item[1])
 
+  	def jsonify(self):
+		jsonGoodies = {
+			'doc': self.rootDoc.jsonify(),
+			'links': self.sortLinks
+		}
+		return jsonGoodies
 
   	def findTopWords(self, query):
   		#Creating a hash map for background language model

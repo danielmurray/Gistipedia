@@ -20,7 +20,7 @@ class WikiDoc():
   		self.images = self.imageURLS(self.pageTitle)
   		randomImage = choice(self.images)
   		# self.randomImageURL = self.createImageURL( randomImage['file'], randomImage['height'], randomImage['width']  )
-  		self.randomImageURL = self.createImageURL( randomImage['file'], '800px', '800px' )
+  		self.randomImageURL = self.createImageURL( randomImage['file'], '600px', '600px' )
 
 	def jsonify(self):
 		jsonGoodies = {
@@ -245,12 +245,17 @@ class WikiDoc():
 	    Looks for the top ten articles that match the search
 	    LOL, Wikipedia uses lucene, we ended up using it anyway!
 	    """
+	    queryArray = query.split(' ')
+	    newquery=''
+	    for queryWord in queryArray:
+	    	newquery += queryWord + '||'
+	    print newquery
 	    searchparams = {
 			"format": 'json',
 			"action": 'query',
 			"list": 'search',
 			"srlimit": 10,
-			"srsearch": query,
+			"srsearch": newquery,
 			"srprop": 'title|wordcount|snippet|url'
 		}
 	    r = self.fetch(self.url, searchparams)
@@ -284,7 +289,6 @@ class WikiDoc():
 
 if __name__ == '__main__':
 	wikipedia = WikiDoc('Japan')
-	print wikipedia.randomImageURL
 	# for link in wikipedia.links:
 	# 	print link
 	# for category in wikipedia.categories:

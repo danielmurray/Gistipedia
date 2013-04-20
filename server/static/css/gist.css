@@ -1,0 +1,57 @@
+.gistPage{
+	height: 100%;
+	width: 100%;
+	background: rgba(40,40,40,1);
+	padding-top: 300px;
+}
+
+.queryWrapper{
+	margin: 0 auto;
+	height: 50px;
+	width: 600px;
+}
+
+.inputBar{
+	height: 100%;
+	width: 500px;
+	background: rgba(240,240,240,1);
+    float:left;
+}
+
+.gistIcon{
+	height: 30px;
+	margin: 10px 0 0 10px;
+    float:left;
+}
+
+.gistField{
+	width: 425px;
+	margin: 6px 0 0 10px;
+	border: 0px;
+	font-size: 30px;
+    font-family: "Lato-thin";
+	background: rgba(0,0,0,0);
+}
+
+.gistField:focus{
+    outline: none;
+}
+
+.gistSearch{
+	width: 95px;
+	height: 100%;
+	float: right;
+	font-size:30px;
+	background: rgba(240,240,240,1);
+}
+
+.gistSearch:hover{
+	background: rgba(40,40,40,1);
+	color: rgba(240,240,240,1);
+}
+
+.gistButton{
+	margin: 4px 0 0 13px;
+	cursor: pointer;
+
+}

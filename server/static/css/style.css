@@ -1,0 +1,55 @@
+@font-face {
+  font-family: 'Lato-thin';
+  src: url("../images/LatoFontSet/Lato-Hai.ttf");
+}
+
+@font-face {
+  font-family: 'Lato-light';
+  src: url("../images/LatoFontSet/Lato-Lig.ttf");
+}
+
+@font-face {
+  font-family: 'Lato-regular';
+  src: url("../images/LatoFontSet/Lato-Reg.ttf");
+}
+
+@font-face {
+  font-family: 'Lato-bold';
+  src: url("../images/LatoFontSet/Lato-Bol.ttf");
+}
+
+@font-face {
+  font-family: 'Lato-thick';
+  src: url("../images/LatoFontSet/Lato-Bla.ttf");
+}
+/*background: -webkit-gradient(linear, left top, left bottom, from(#AF3C3C), to(#2C0606)) no-repeat center center fixed;
+        -webkit-background-size: cover;
+*/
+*{
+    margin:0;
+    padding:0;
+}
+
+html{ 
+    font-family: "Lato-thin";
+}
+
+body{
+    height: 100%;
+    width:100%;
+    position:relative;
+    z-index: -10;
+}
+
+h1{
+    font-size: 75px;
+}
+
+h2{
+    font-size: 30px;
+}
+
+#viewport{
+	height: 100%;
+	width:100%;
+}
