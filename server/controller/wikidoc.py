@@ -20,7 +20,7 @@ class WikiDoc():
   		self.images = self.imageURLS(self.pageTitle)
   		randomImage = choice(self.images)
   		# self.randomImageURL = self.createImageURL( randomImage['file'], randomImage['height'], randomImage['width']  )
-  		self.randomImageURL = self.createImageURL( randomImage['file'], '600px', '600px' )
+  		self.randomImageURL = self.createImageURL( randomImage['file'], '400px')
 
 	def jsonify(self):
 		jsonGoodies = {
@@ -221,7 +221,7 @@ class WikiDoc():
 	        raise SSMWError(r.text)
 	    return r.json()['query']['pages']
 
-	def createImageURL(self, fileTitle, height, width):
+	def createImageURL(self, fileTitle, width):
 	    """
 	    Returns the link in the Wikipedia commons to the 
 	    image with the correct height and width
@@ -232,8 +232,7 @@ class WikiDoc():
 			"titles": fileTitle,
 			"prop": 'imageinfo',
 			"iiprop": 'url',
-			"iiurlwidth": width,
-			"iiurlheight": height
+			"iiurlwidth": width
 		}
 	    r = self.fetch(self.url, queryparams)
 	    if not r.json():
@@ -249,7 +248,6 @@ class WikiDoc():
 	    newquery=''
 	    for queryWord in queryArray:
 	    	newquery += queryWord + '||'
-	    print newquery
 	    searchparams = {
 			"format": 'json',
 			"action": 'query',
@@ -288,7 +286,7 @@ class WikiDoc():
 		return r
 
 if __name__ == '__main__':
-	wikipedia = WikiDoc('Japan')
+	wikipedia = WikiDoc('Quiver Tree Forest Namibia')
 	# for link in wikipedia.links:
 	# 	print link
 	# for category in wikipedia.categories:

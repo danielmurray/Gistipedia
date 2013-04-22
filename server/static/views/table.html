@@ -1,0 +1,17 @@
+<link href="/static/css/table.css" rel="stylesheet" type="text/css">
+<div class='tablewrapper'>
+	<ul class='tablelist'>
+	<% 
+        _.each(collection, function(data,i) {
+        %>
+
+        <li>
+        	<div id='tableEntry<%=i%>' class='datawrapper' >
+        	</div>
+        </li>
+
+        <%
+        });
+        %>
+	</ul>
+</div>

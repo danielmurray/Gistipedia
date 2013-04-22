@@ -1,11 +1,23 @@
-.nodewrapper{
-	height: 20%;
+.nodeWrapper{
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
+
+.nodeTitleWrapper{
+	height: 30%;
 	width: 100%;
 	overflow: hidden;
 	position: relative;
 }
 
-.nodetitle{
+.filterForNow{
+	height: 100%;
+	width: 100%;
+	background: rgba(240,240,240,0.35);
+}
+
+.nodeTitle{
 	position: absolute;
 	bottom: 0;
 	width: 100%;
@@ -13,15 +25,32 @@
 	color: rgba(41,41,41,1);
 }
 
-.nodetitle h1{
+.nodeTitle h1{
 
 }
 
+.nodeTextWrapper{
+	height: 50%;
+	width: 100%;
+	overflow: scroll;
+}
 
-.nodeimage{
-	position: absolute;
-	top: -25%;
-	left:-25%;
-	width: 200%;
-	opacity: .65;
+.nodeTableWrapper{
+	height: 20%;
+}
+
+.nodeCategoryWrapper{
+	height: 100%;
+	width: 50%;
+	float:left;
+}
+
+.nodeLinkWrapper{
+	height: 100%;
+	width: 50%;
+	float:right;
+}
+
+.table{
+	overflow: scroll;
 }

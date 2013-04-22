@@ -23,6 +23,7 @@ def backgroundImage():
 
 @app.route('/graph/<query>', methods=['GET'])
 def content(query):
+    print query
     wikiPage = controller.WikiGraph(query)
     return json.dumps(wikiPage.jsonify())
 

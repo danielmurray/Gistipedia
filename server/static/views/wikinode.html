@@ -1,8 +1,37 @@
 <link href="/static/css/wikinode.css" rel="stylesheet" type="text/css">
-<div class='nodewrapper'>
-	<div class='nodetitle'>
-		<h1><%=model.get('title')%></h1>
+<style>
+	.nodeTitleWrapper{
+		background: url(<%=model.get('image')%>) no-repeat center center;
+
+	}
+</style>
+<div class='nodeWrapper'>
+	<div class='nodeTitleWrapper'>
+		<div class='filterForNow'></div>
+		<div class='nodeTitle'>
+			<h1><%=model.get('title')%></h1>
+		</div>
 	</div>
-	<img class='nodeimage'src='<%=model.get('image')%>'>
+	<div class='nodeTextWrapper'>
+		<div class='nodeText'>
+			<p><%=model.get('text')%></p>
+		</div>
+	</div>
+	<div class='nodeTableWrapper'>
+		<div class='nodeCategoryWrapper'>
+			<div class='categoryHeader'>
+				<h3>Categories<h2>
+			</div>
+			<div id='nodeCategories' class='table'>
+			</div>
+		</div>
+		<div class='nodeLinkWrapper'>
+			<div class='linkHeader'>
+				<h3>Links<h2>
+			</div>
+			<div id='nodeLinks' class='table'>
+			</div>
+		</div>
+	</div>
 </div>
 

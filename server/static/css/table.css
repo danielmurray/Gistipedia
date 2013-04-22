@@ -1,0 +1,19 @@
+.tablewrapper{
+	overflow-y:scroll;
+	height: 100%;
+}
+
+.tablelist{
+	height: 100%;
+	width:100%;
+	list-style-type: none;
+}
+
+.tablelist li{
+	margin-bottom: 1%
+}
+
+
+.datawrapper{
+	
+}

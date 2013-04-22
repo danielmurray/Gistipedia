@@ -13,7 +13,6 @@ class PicOfTheDay():
   		self.caption = self.potdCaption()
   		self.url = self.fileURL(self.file, '800px')
   		self.title = self.findTitle(self.caption)
-  		print self.url
 
   	def jsonify(self):
   		return {
@@ -94,10 +93,8 @@ class PicOfTheDay():
 		titles = re.findall('.*?\[\[(.*?)\]\].*?',caption)
 		concatenatedTitles = ''
 		for title in titles:
-			concatenatedTitles += title
-		print concatenatedTitles
+			concatenatedTitles += title.split('|')[-1] + ' '
 		return concatenatedTitles
 
 if __name__ == '__main__':
 	picoftheday = PicOfTheDay()
-	print picoftheday.url

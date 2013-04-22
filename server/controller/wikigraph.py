@@ -130,11 +130,11 @@ class WikiGraph():
 
 		
 if __name__ == '__main__':
-	wikipedia = WikiGraph('Peking University')
-	# for link in wikipedia.links:
-	# 	print link.encode('ascii','ignore')
-	for word in wikipedia.topWords:
-	 	print word[0].encode('ascii','ignore'), word[1]
+	wikipedia = WikiGraph('Quiver Tree Forest Namibia')
+	for link in wikipedia.sortLinks:
+		print link[0]
+	# for word in wikipedia.topWords:
+	#  	print word[0].encode('ascii','ignore'), word[1]
 	# for word in wikipedia.topLinks:
 	#  	print word.encode('ascii','ignore')
 	# for link in wikipedia.sortLinks:
