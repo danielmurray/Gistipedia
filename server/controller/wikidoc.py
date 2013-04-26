@@ -217,9 +217,9 @@ class WikiDoc():
 			"iiprop": 'mime|size'
 		}
 	    r = self.fetch(self.url, queryparams)
-	    if not r.json():
+	    if not r.json:
 	        raise SSMWError(r.text)
-	    return r.json()['query']['pages']
+	    return r.json['query']['pages']
 
 	def createImageURL(self, fileTitle, width):
 	    """
@@ -235,9 +235,9 @@ class WikiDoc():
 			"iiurlwidth": width
 		}
 	    r = self.fetch(self.url, queryparams)
-	    if not r.json():
+	    if not r.json:
 	        raise SSMWError(r.text)
-	    return r.json()['query']['pages'].itervalues().next()['imageinfo'][0]['thumburl']
+	    return r.json['query']['pages'].itervalues().next()['imageinfo'][0]['thumburl']
 
   	def findArticles(self, query):
 	    """
@@ -257,9 +257,9 @@ class WikiDoc():
 			"srprop": 'title|wordcount|snippet|url'
 		}
 	    r = self.fetch(self.url, searchparams)
-	    if not r.json():
+	    if not r.json:
 	        raise SSMWError(r.text)
-	    return r.json()
+	    return r.json
 
   	def queryMarkup(self, pageTitle):
 	    """
@@ -273,9 +273,9 @@ class WikiDoc():
 			"rvprop": 'content'
 		}
 	    r = self.fetch(self.url, queryparams)
-	    if not r.json():
+	    if not r.json:
 	        raise SSMWError(r.text)
-	    wikimarkup = r.json()['query']['pages'].itervalues().next()['revisions'][0]['*']
+	    wikimarkup = r.json['query']['pages'].itervalues().next()['revisions'][0]['*']
 	    return wikimarkup
 
 	def fetch(self, url, params=None):	

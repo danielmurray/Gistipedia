@@ -1,7 +1,8 @@
 import json
 from wikidoc import WikiDoc
 import re
-
+import gensim
+from gensim import corpora, models, similarities
 class WikiGraph():
 
   	def __init__(self, query):
@@ -11,6 +12,7 @@ class WikiGraph():
   		# self.wikiDocs = []
   		# self.topWords = self.findTopWords(query) #Soon we may add the option to pass a variable
   		# self.topLinks = self.findTopLinks(query, self.topWords)
+  		# self.corpus = self.backgroundLanguageModel()
   		self.sortLinks = self.languageModel(self.links)
   		self.sortLinks = sorted(self.sortLinks.iteritems(), key=lambda item: -item[1])
 
@@ -130,9 +132,38 @@ class WikiGraph():
 
 		
 if __name__ == '__main__':
-	wikipedia = WikiGraph('Quiver Tree Forest Namibia')
+	wikipedia = WikiGraph('China')
+	sorted_links = {}
+	i = 0
 	for link in wikipedia.sortLinks:
-		print link[0]
+		#print link[0]
+		if i<25:
+			sorted_links[i] = link[0].encode('ascii', 'ignore')
+		i = i + 1
+		
+	doc = WikiDoc('Quiver Tree Forest Namibia')
+	file = open('./wikicorpus.txt')
+	data = file.read()
+	file.close()
+	texts = [[word for word in data.lower().split()]]
+	all_tokens = sum(texts, [])
+	# #tokens_once = set(word for word in set(all_tokens) if all_tokens.count(word) == 1)
+	# #texts = [[word for word in text if word not in tokens_once] for text in texts]
+	dictionary = corpora.Dictionary(texts)
+	corpus = corpora.MmCorpus('./wikicorpus.mm')
+	tfidf = models.TfidfModel(corpus)
+	one_doc = WikiDoc(sorted_links[0])
+	print dictionary.token2id
+	one_doc_bow = dictionary.doc2bow(one_doc.jsonify()['text'].lower().split())	
+	print one_doc_bow
+	print tfidf[one_doc_bow]
+
+	# one_doc = WikiDoc(sorted_links[0])
+	# one_doc_tfidf = tfidf[one_doc_bow]
+	# print one_doc_tfidf
+
+	#dictionary = corpora.Dictionary.load(wikipedia.corpus)
+
 	# for word in wikipedia.topWords:
 	#  	print word[0].encode('ascii','ignore'), word[1]
 	# for word in wikipedia.topLinks:
