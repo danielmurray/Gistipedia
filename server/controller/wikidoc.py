@@ -8,6 +8,7 @@ class WikiDoc():
   	def __init__(self, query):
   		self.url = 'http://en.wikipedia.org/w/api.php'
   		self.searchResults = self.findArticles(query)
+  		print self.searchResults
   		#Best Match from wikipedia
 		self.pageTitle = self.searchResults['query']['search'][0]['title']
 		self.markup = self.queryMarkup(self.pageTitle)
