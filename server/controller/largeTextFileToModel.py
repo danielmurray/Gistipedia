@@ -18,10 +18,10 @@ if __name__ == '__main__':
 			bigOlDict[word] = 1
 		else:
 			bigOlDict[word] += 1
-  	sortWords = sorted(bigOlDict.iteritems(), key=operator.itemgetter(1))
-  	languageModel = {}
-  	for word in reversed(sortWords):
-  		languageModel[word[0]] = float(word[1])/wordcount
-  	for word, prob in languageModel.iteritems():
-  		print word, prob
+  	# sortWords = sorted(bigOlDict.iteritems(), key=operator.itemgetter(1))
+  	# languageModel = {}
+  	# for word in reversed(sortWords):
+  	# 	languageModel[word[0]] = float(word[1])/wordcount
+  	for word, occurrence in bigOlDict.iteritems():
+  		print word, occurrence
 

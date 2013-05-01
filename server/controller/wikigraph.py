@@ -3,6 +3,14 @@ from wikidoc import WikiDoc
 import re
 import gensim
 from gensim import corpora, models, similarities
+
+backgroundModelFile = open('./occuranceModel.txt', 'r')
+backgroundModelProb = {}
+for line in backgroundModelFile:
+	word = line.split(' ')[0]
+	probability = line.split(' ')[1].split('\n')[0]
+	backgroundModelProb[word] = probability
+
 class WikiGraph():
 
   	def __init__(self, query):
@@ -24,11 +32,7 @@ class WikiGraph():
 		return jsonGoodies
 
   	def findTopWords(self):
-  		#Creating a hash map for background language model
-  		backgroundText = self.backgroundLanguageModel()
-  		words = re.split(' ', backgroundText)
-		backgroundLanguageModel = self.languageModel(words)
-		#Creating a hash map for the query language model
+  		backgroundLanguageModel = backgroundModelProb
 		words = re.split(' ', self.text)
 		unigramLanguageModel = self.languageModel(words)
 		#Creating a normalize language model of document words
@@ -132,52 +136,13 @@ class WikiGraph():
 
 		
 if __name__ == '__main__':
-<<<<<<< HEAD
-	
-	# wikipedia = WikiGraph('Cinquantenaire')
+	print backgroundModelProb['the']
+	wikipedia = WikiGraph('Cinquantenaire')
 	# for word in wikipedia.topWords:
 	# 	print word
 	# for link in wikipedia.sortLinks:
 	# 	print link[0]
-=======
-	wikipedia = WikiGraph('China')
-	sorted_links = {}
-	i = 0
-	for link in wikipedia.sortLinks:
-		#print link[0]
-		if i<25:
-			sorted_links[i] = link[0].encode('ascii', 'ignore')
-		i = i + 1
-		
-	doc = WikiDoc('Quiver Tree Forest Namibia')
-	file = open('./wikicorpus.txt')
-	data = file.read()
-	file.close()
-	texts = [[word for word in data.lower().split()]]
-	all_tokens = sum(texts, [])
-	# #tokens_once = set(word for word in set(all_tokens) if all_tokens.count(word) == 1)
-	# #texts = [[word for word in text if word not in tokens_once] for text in texts]
-	dictionary = corpora.Dictionary(texts)
-	corpus = corpora.MmCorpus('./wikicorpus.mm')
-	tfidf = models.TfidfModel(corpus)
-	one_doc = WikiDoc(sorted_links[0])
-	print dictionary.token2id
-	one_doc_bow = dictionary.doc2bow(one_doc.jsonify()['text'].lower().split())	
-	print one_doc_bow
-	print tfidf[one_doc_bow]
 
-	# one_doc = WikiDoc(sorted_links[0])
-	# one_doc_tfidf = tfidf[one_doc_bow]
-	# print one_doc_tfidf
 
-	#dictionary = corpora.Dictionary.load(wikipedia.corpus)
-
->>>>>>> 4ed95ae93c8133ea807e40cfc5ce612bdba5c6af
-	# for word in wikipedia.topWords:
-	#  	print word[0].encode('ascii','ignore'), word[1]
-	# for word in wikipedia.topLinks:
-	#  	print word.encode('ascii','ignore')
-	# for link in wikipedia.sortLinks:
-	# 	print link[0].encode('ascii','ignore'), link[1]
 
 
