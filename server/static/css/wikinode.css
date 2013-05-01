@@ -5,7 +5,7 @@
 }
 
 .nodeTitleWrapper{
-	height: 30%;
+	height: 40%;
 	width: 100%;
 	overflow: hidden;
 	position: relative;
@@ -26,13 +26,18 @@
 }
 
 .nodeTitle h1{
-
+	text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 .nodeTextWrapper{
 	height: 50%;
 	width: 100%;
 	overflow: scroll;
+}
+
+.readableText{
+	font-family: 'Lato-light';
+	padding: 10px;
 }
 
 .nodeTableWrapper{

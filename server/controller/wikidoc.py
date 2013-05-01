@@ -14,18 +14,20 @@ class WikiDoc():
   		#Footer is filled in articleBody, using this subset of text decreases runtime
 		self.footer = ''
   		self.textAndLinks = self.preFormat(self.markup, self.pageTitle)
+  		self.summary = self.firstSentences(self.textAndLinks)
   		self.links = self.docLinks(self.textAndLinks)
   		self.text = self.rawText(self.textAndLinks)
   		self.categories = self.docCategories(self.footer)
-  		self.images = self.imageURLS(self.pageTitle)
-  		randomImage = choice(self.images)
-  		# self.randomImageURL = self.createImageURL( randomImage['file'], randomImage['height'], randomImage['width']  )
-  		self.randomImageURL = self.createImageURL( randomImage['file'], '400px')
+		self.images = self.imageURLS(self.pageTitle)
+	  	if len(self.images) > 0:
+	  		self.randomImage = choice(self.images)
+	  		self.randomImageURL = self.createImageURL( self.randomImage['file'], '400px')
 
 	def jsonify(self):
 		jsonGoodies = {
 			'title': self.pageTitle,
 			'text': self.text,
+			'summary': self.summary,
 			'links': self.links,
 			'categories': self.categories,
 			'images': self.images,
@@ -42,6 +44,18 @@ class WikiDoc():
 		wikimarkup = self.removeImages(wikimarkup)
 		wikimarkup = re.sub('\\n','',wikimarkup)
 		return wikimarkup
+
+	def firstSentences(self, text):
+  		if text == '':
+			return []
+  		wikimarkup = text
+		sentences = text.split('.')
+		summary = ''
+  		for sentence in sentences[:4]:
+  			sentence = re.sub('\[\[[^]]*?\|', '', sentence)
+  			sentence = re.sub('[\[\]\{\}\']', '', sentence)
+  			summary += sentence +'. '
+  		return summary
 
 	def docLinks(self, text):
 		if text == '':
@@ -63,23 +77,32 @@ class WikiDoc():
   		return categories
 
   	def imageURLS(self, pageTitle):
-		wikiObject = self.findImages(pageTitle)
-		acceptableMimes = [
+  		wikiImageMarkup = self.findImages(pageTitle)
+  		imageDicts = []
+  		acceptableMimes = [
 			'jpeg',
+			'jpg',
 			'png',
-			'gif'
+			'gif',
+			'JPEG',
+			'JPG',
+			'PNG',
+			'GIF'
 		]
-		imageDicts= []
-		for imageURL in wikiObject.iteritems():
-			if imageURL[1].get('imageinfo'):
-				imageinfo = imageURL[1]['imageinfo'][0]
-				if any(x in imageinfo['mime'] for x in acceptableMimes):
+		for imageMarkup in wikiImageMarkup.itervalues():
+			imageInfo = imageMarkup.get('imageinfo')
+			if imageInfo == None or len(imageInfo) == 0:
+				break
+			else:
+				imageInfo = imageInfo[0]
+				if any(x in imageInfo.get('mime') for x in acceptableMimes):
 					imageDict = {}
-					imageDict['file'] = imageURL[1]['title']
+					imageDict['file'] = imageMarkup['title']
 					imageDict['title'] = imageDict['file'].split(':')[1]
-					imageDict['height'] = imageinfo['height']
-					imageDict['width'] = imageinfo['width']
-					imageDict['size'] = imageinfo['size']
+					imageDict['height'] = imageInfo['height']
+					imageDict['width'] = imageInfo['width']
+					imageDict['size'] = imageInfo['size']
+					imageDict['url'] = imageInfo['url']
 					imageDicts.append(imageDict)
 		return imageDicts
 
@@ -132,26 +155,33 @@ class WikiDoc():
 		closeIndexItr = 0
 		depthCounter = 0
 		stringIndices = [
-			[0,0]
 		]
+		# for i, index in enumerate(openingIndices):
+		# 	print index, closingIndices[i]
 		while openIndexItr < len(openingIndices) and closeIndexItr < len(closingIndices):
 			if openIndexItr+1 < len(openingIndices) and openingIndices[openIndexItr] < closingIndices[closeIndexItr]:
+				#Opening Tag Found
 				if depthCounter == 0:
 					stringIndices.append([openingIndices[openIndexItr]-1,1])
 				depthCounter += 1
 				openIndexItr += 1
 			else:
+				#Closing Tag Found
 				if depthCounter < 2:
 					stringIndices.append([closingIndices[closeIndexItr]+len(closingTag),0])
 				depthCounter -= 1
 				closeIndexItr += 1
 		stringIndices.append([len(text),1])
 		finalStringIndices = []
+		# for i, index in enumerate(stringIndices):
+		# 	print index
 		for indexTuples in stringIndices:
 			if indexTuples[1] == 0:
 				finalStringIndices.append([indexTuples[0], None])
-			elif finalStringIndices > 0: #indexTuples[1] must equal 
+			elif len(finalStringIndices) > 0: #indexTuples[1] must equal 1
 				finalStringIndices[-1][1] = indexTuples[0]
+		# for i, index in enumerate(finalStringIndices):
+		# 	print index
 		if action == 'content':
 			return self.tagContent( text, finalStringIndices, openingTag, closingTag)
 		else: 
@@ -206,19 +236,22 @@ class WikiDoc():
 	    """
 	    Acquire Wikipage's Images witha list of URLs 
 	    """
+	    fileNames = []
 	    queryparams = {
 			"format": 'json',
 			"action": 'query',
 			"titles": pageTitle,
-
+			"redirects": 'true',
 			"generator": 'images',
 			"gimlimit": 500,
 			"prop": 'imageinfo',
-			"iiprop": 'mime|size'
+			"iiprop": 'url|mime|size'
 		}
 	    r = self.fetch(self.url, queryparams)
 	    if not r.json():
-	        raise SSMWError(r.text)
+	        #Oops no picture, oh well who cares
+	        print 'No photo'
+	        return[]
 	    return r.json()['query']['pages']
 
 	def createImageURL(self, fileTitle, width):
@@ -286,7 +319,8 @@ class WikiDoc():
 		return r
 
 if __name__ == '__main__':
-	wikipedia = WikiDoc('Quiver Tree Forest Namibia')
+	wikipedia = WikiDoc('China')
+	# print wikipedia.images
 	# for link in wikipedia.links:
 	# 	print link
 	# for category in wikipedia.categories:

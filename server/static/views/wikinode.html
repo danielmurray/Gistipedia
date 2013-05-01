@@ -1,8 +1,7 @@
 <link href="/static/css/wikinode.css" rel="stylesheet" type="text/css">
 <style>
-	.nodeTitleWrapper{
+	body{
 		background: url(<%=model.get('image')%>) no-repeat center center;
-
 	}
 </style>
 <div class='nodeWrapper'>
@@ -14,7 +13,7 @@
 	</div>
 	<div class='nodeTextWrapper'>
 		<div class='nodeText'>
-			<p><%=model.get('text')%></p>
+			<p class='readableText'><%=model.get('summary')%></p>
 		</div>
 	</div>
 	<div class='nodeTableWrapper'>

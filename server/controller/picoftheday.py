@@ -9,10 +9,15 @@ class PicOfTheDay():
 
   	def __init__(self):
   		self.url = 'http://commons.wikimedia.org/w/api.php'
-  		self.file = self.potdFileName()
-  		self.caption = self.potdCaption()
-  		self.url = self.fileURL(self.file, '800px')
-  		self.title = self.findTitle(self.caption)
+  		# Picture of the Day Implementation
+  		# self.file = self.potdFileName()
+  		# self.caption = self.potdCaption()
+  		# self.url = self.fileURL(self.file, '1310px')
+  		# self.title = self.findTitle(self.caption)
+  		# Random Wikipedia Picture Implementation
+  		self.file = self.randomFileName()
+  		self.url = self.fileURL(self.file, '1310px')
+  		self.title = self.findTitle("[[" + self.file + "]]")
 
   	def jsonify(self):
   		return {
@@ -91,10 +96,10 @@ class PicOfTheDay():
 
 	def findTitle(self, caption):
 		titles = re.findall('.*?\[\[(.*?)\]\].*?',caption)
-		concatenatedTitles = ''
+		concatenatedTitles = []
 		for title in titles:
-			concatenatedTitles += title.split('|')[-1] + ' '
-		return concatenatedTitles
+			concatenatedTitles.append(title.split('|')[-1])
+		return concatenatedTitles[0]
 
 if __name__ == '__main__':
 	picoftheday = PicOfTheDay()

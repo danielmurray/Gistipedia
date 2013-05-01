@@ -10,7 +10,6 @@ import controller
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
-app.picOfTheDay = controller.PicOfTheDay()
 
 @app.route('/')
 def init():
@@ -18,15 +17,18 @@ def init():
 
 @app.route('/picoftheday/', methods=['GET'])
 def backgroundImage():
+    app.picOfTheDay = controller.PicOfTheDay()
     return json.dumps(app.picOfTheDay.jsonify())
 
-
-@app.route('/graph/<query>', methods=['GET'])
-def content(query):
-    print query
-    wikiPage = controller.WikiGraph(query)
+@app.route('/doc/<query>', methods=['GET'])
+def doc(query):
+    wikiDoc = controller.WikiDoc(query)
     return json.dumps(wikiPage.jsonify())
 
+@app.route('/graph/<query>', methods=['GET'])
+def graph(query):
+    wikiPage = controller.WikiGraph(query)
+    return json.dumps(wikiPage.jsonify())
 
 if __name__ == '__main__':
     app.run()

@@ -6,13 +6,16 @@ class WikiGraph():
 
   	def __init__(self, query):
   		self.rootDoc = WikiDoc(query)
-  		self.text  = self.rootDoc.text
-  		self.links = self.rootDoc.links
-  		# self.wikiDocs = []
-  		# self.topWords = self.findTopWords(query) #Soon we may add the option to pass a variable
-  		# self.topLinks = self.findTopLinks(query, self.topWords)
-  		self.sortLinks = self.languageModel(self.links)
-  		self.sortLinks = sorted(self.sortLinks.iteritems(), key=lambda item: -item[1])
+  		self.doc = self.rootDoc.jsonify()
+  		self.text = self.doc['text']
+  		self.links = self.doc['links']
+  		# self.sortLinks = self.languageModel(self.links)
+  		self.sortLinks = sorted(self.links, key=lambda item: -1* item)
+  		self.topWords = self.findTopWords()
+  		self.wikiDocs = []
+  		# for i in range(0,10):
+  		# 	self.wikiDocs.append( WikiDoc( self.links[i] ) )
+
 
   	def jsonify(self):
 		jsonGoodies = {
@@ -21,7 +24,7 @@ class WikiGraph():
 		}
 		return jsonGoodies
 
-  	def findTopWords(self, query):
+  	def findTopWords(self):
   		#Creating a hash map for background language model
   		backgroundText = self.backgroundLanguageModel()
   		words = re.split(' ', backgroundText)
@@ -130,9 +133,12 @@ class WikiGraph():
 
 		
 if __name__ == '__main__':
-	wikipedia = WikiGraph('Quiver Tree Forest Namibia')
-	for link in wikipedia.sortLinks:
-		print link[0]
+	
+	# wikipedia = WikiGraph('Cinquantenaire')
+	# for word in wikipedia.topWords:
+	# 	print word
+	# for link in wikipedia.sortLinks:
+	# 	print link[0]
 	# for word in wikipedia.topWords:
 	#  	print word[0].encode('ascii','ignore'), word[1]
 	# for word in wikipedia.topLinks:

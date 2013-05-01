@@ -38,11 +38,6 @@ var HomeView = BaseView.extend({
     this.on("assign", this.animateIn);
     this.template = loadTemplate("/static/views/home.html");
 
-    this.height = window.screen.height;
-    this.width= window.screen.width;
-
-    this.$el.height(this.height)
-
 
     this.render()
 
@@ -50,7 +45,7 @@ var HomeView = BaseView.extend({
   route: function(part, remaining) {
 
     if (!part) {
-      navigate("gist", false); // don't trigger nav inside route
+      navigate("gist", true); // don't trigger nav inside route
     }
   
     //id to view map
@@ -96,11 +91,6 @@ var GistView = BaseView.extend({
     this.on("assign", this.animateIn);
     this.template = loadTemplate("/static/views/gist.html");
 
-    this.width = window.screen.height;
-    this.height= window.screen.width;
-
-    this.$el.height(this.height)
-
     $.ajax({
       type: 'GET',
       url: '/picoftheday',
@@ -127,7 +117,8 @@ var GistView = BaseView.extend({
     this.$el.html(renderedTemplate);
   },
   injectPictureOfTheDay: function() {
-    $('.gistPage').css('background', 'url(\'' + this.pictureOfTheDay['url'] +'\') no-repeat center center fixed' )
+    console.log($('#homeWrapper'))
+    $('#homeWrapper').css('background', 'url(\'' + this.pictureOfTheDay['url'] +'\') no-repeat center center fixed' )
     $('.gistField').val(this.pictureOfTheDay['title'])
   },
   gistQuery: function(){
@@ -154,6 +145,7 @@ var WikiGraph = BaseView.extend({
         that.model = new WikiDoc({
           'title': data.doc.title,
           'text': data.doc.text,
+          'summary': data.doc.summary,
           'image': data.doc.randomImageURL,
           'categories': data.doc.categories,
           'links': data.links
