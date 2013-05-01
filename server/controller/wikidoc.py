@@ -8,7 +8,6 @@ class WikiDoc():
   	def __init__(self, query):
   		self.url = 'http://en.wikipedia.org/w/api.php'
   		self.searchResults = self.findArticles(query)
-  		print self.searchResults
   		#Best Match from wikipedia
 		self.pageTitle = self.searchResults['query']['search'][0]['title']
 		self.markup = self.queryMarkup(self.pageTitle)
@@ -20,6 +19,8 @@ class WikiDoc():
   		self.text = self.rawText(self.textAndLinks)
   		self.categories = self.docCategories(self.footer)
 		self.images = self.imageURLS(self.pageTitle)
+		self.randomImage = ''
+		self.randomImageURL = ''
 	  	if len(self.images) > 0:
 	  		self.randomImage = choice(self.images)
 	  		self.randomImageURL = self.createImageURL( self.randomImage['file'], '400px')
@@ -271,7 +272,7 @@ class WikiDoc():
 	    r = self.fetch(self.url, queryparams)
 	    if not r.json:
 	        raise SSMWError(r.text)
-	    return r.json['query']['pages'].itervalues().next()['imageinfo'][0]['thumburl']
+	    return r.json()['query']['pages'].itervalues().next()['imageinfo'][0]['thumburl']
 
   	def findArticles(self, query):
 	    """
@@ -291,9 +292,9 @@ class WikiDoc():
 			"srprop": 'title|wordcount|snippet|url'
 		}
 	    r = self.fetch(self.url, searchparams)
-	    if not r.json:
+	    if not r.json():
 	        raise SSMWError(r.text)
-	    return r.json
+	    return r.json()
 
   	def queryMarkup(self, pageTitle):
 	    """
@@ -307,9 +308,9 @@ class WikiDoc():
 			"rvprop": 'content'
 		}
 	    r = self.fetch(self.url, queryparams)
-	    if not r.json:
+	    if not r.json():
 	        raise SSMWError(r.text)
-	    wikimarkup = r.json['query']['pages'].itervalues().next()['revisions'][0]['*']
+	    wikimarkup = r.json()['query']['pages'].itervalues().next()['revisions'][0]['*']
 	    return wikimarkup
 
 	def fetch(self, url, params=None):	

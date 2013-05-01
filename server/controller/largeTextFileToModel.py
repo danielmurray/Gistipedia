@@ -4,7 +4,7 @@ import re
 		
 if __name__ == '__main__':
 	
-	file = open('./background.txt')
+	file = open('./wikicorpus.txt')
 	data = file.read()
 	file.close()
 	data = data.lower()

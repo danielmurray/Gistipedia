@@ -4,12 +4,12 @@ import re
 import gensim
 from gensim import corpora, models, similarities
 
-backgroundModelFile = open('./occuranceModel.txt', 'r')
-backgroundModelProb = {}
+backgroundModelFile = open('./wikiOccurance.txt', 'r')
+backgroundModel = {}
 for line in backgroundModelFile:
 	word = line.split(' ')[0]
 	probability = line.split(' ')[1].split('\n')[0]
-	backgroundModelProb[word] = probability
+	backgroundModel[word] = probability
 
 class WikiGraph():
 
@@ -18,11 +18,12 @@ class WikiGraph():
   		self.text  = self.rootDoc.text
   		self.links = self.rootDoc.links
   		# self.wikiDocs = []
-  		# self.topWords = self.findTopWords(query) #Soon we may add the option to pass a variable
-  		# self.topLinks = self.findTopLinks(query, self.topWords)
-  		# self.corpus = self.backgroundLanguageModel()
+  		self.topWords = self.findTopWords(self.text) #Soon we may add the option to pass a variable
   		self.sortLinks = self.languageModel(self.links)
   		self.sortLinks = sorted(self.sortLinks.iteritems(), key=lambda item: -item[1])
+  		wikiDocs = []
+  		for i in range(0,3):
+  			wikiDocs.append(WikiDoc(self.sortLinks[i][0]))
 
   	def jsonify(self):
 		jsonGoodies = {
@@ -31,13 +32,7 @@ class WikiGraph():
 		}
 		return jsonGoodies
 
-  	def findTopWords(self):
-  		backgroundLanguageModel = backgroundModelProb
-		words = re.split(' ', self.text)
-		unigramLanguageModel = self.languageModel(words)
-		#Creating a normalize language model of document words
-		normalizedLanguageModel = self.sortNormalLangModel(unigramLanguageModel,backgroundLanguageModel)
-		return normalizedLanguageModel
+
 	
 	def findTopLinks(self, query, topWordsModel):
 		#Takes in a top word count and then 
@@ -72,14 +67,20 @@ class WikiGraph():
 				break
 		return topWordsToLinks
 
-
-	
 	def hashMapAdd(self, hashmap, term):
 		if term != '':
 			if hashmap.get(term) != None:
 				hashmap[term] += 1
 			else:
 				hashmap[term] = 1
+
+	def findTopWords(self, text):
+  		backgroundLanguageModel = backgroundModel
+		words = re.split(' ', text)
+		unigramLanguageModel = self.languageModel(words)
+		#Creating a normalize language model of document words
+		normalizedLanguageModel = self.sortNormalLangModel(unigramLanguageModel,backgroundLanguageModel)
+		return normalizedLanguageModel
 
 	def languageModel(self, textArray):
 		languageModel = {}
@@ -92,6 +93,7 @@ class WikiGraph():
 		return languageModel
 
 	def sortNormalLangModel(self, unigram, background):
+
 		backgroundCount = len(background)
 		unigramCount = len(unigram)
 		normalizedLanguageModel = {}
@@ -99,9 +101,9 @@ class WikiGraph():
 			#if word in unigram does not exist, don't just divide by zero
 			#else divide by the background word count + 1
 			if background.get(word) == None:
-				backProb = 1/float(backgroundCount + 20000)
+				backProb = 1/float(backgroundCount + 2000)
 			else:
-				backProb = (background[word] + 1)/float(backgroundCount + 20000)
+				backProb = (int(background[word]) + 1)/float(backgroundCount + 2000)
 			normalizedLanguageModel[word] = (unigram[word]/float(unigramCount))/float(backProb)
 		sortedNormalLanguageModel = sorted(normalizedLanguageModel.iteritems(), key=lambda item: -item[1])
 		return sortedNormalLanguageModel
@@ -136,8 +138,7 @@ class WikiGraph():
 
 		
 if __name__ == '__main__':
-	print backgroundModelProb['the']
-	wikipedia = WikiGraph('Cinquantenaire')
+	wikipedia = WikiGraph('China')
 	# for word in wikipedia.topWords:
 	# 	print word
 	# for link in wikipedia.sortLinks:
