@@ -21,9 +21,12 @@ class WikiGraph():
   		self.topWords = self.findTopWords(self.text) #Soon we may add the option to pass a variable
   		self.sortLinks = self.languageModel(self.links)
   		self.sortLinks = sorted(self.sortLinks.iteritems(), key=lambda item: -item[1])
-  		wikiDocs = []
-  		for i in range(0,3):
-  			wikiDocs.append(WikiDoc(self.sortLinks[i][0]))
+  		self.wikiDocs = []
+  		for i in range(0,10):
+  			self.wikiDocs.append(WikiDoc(self.sortLinks[i][0]))
+  		print "links loaded"
+  		self.similarityMatrix = self.linkSimilarityMatrix(self.wikiDocs)
+  		print "similarities computed"
 
   	def jsonify(self):
 		jsonGoodies = {
@@ -32,8 +35,61 @@ class WikiGraph():
 		}
 		return jsonGoodies
 
+	def linkSimilarityMatrix(self,wikiDocs):
+		languageModels = {}
+		links = []
+		for wikidoc in wikiDocs:
+			languageModels[wikidoc.pageTitle] = self.findTopWords(wikidoc.text)
+			links.append(wikidoc.pageTitle)
+		similarityMatrix = {}
+		for link1 in links:
+			similarityMatrix[link1] = {}
+			for link2 in links:
+				if link2 is link1:
+					similarityMatrix[link1][link2] = 1
+				elif similarityMatrix.get(link2):
+					similarityMatrix[link1][link2] = similarityMatrix[link2].get(link1)
+				else:
+					score = self.computeSimilarity(languageModels[link1], languageModels[link2])
+					print str(score*pow(10,8)) + "     " + link1 + "      " + link2
+		return similarityMatrix
 
-	
+	def computeSimilarity(self, model_1, model_2):
+		mu = 1
+		prob_diff = 0
+		flag = 1
+		#check which dictionary has more words
+		if (len(model_1) < len(model_2)):
+			#iterate through all the keys in the shorter dictionary
+			for key in model_1.keys():
+				mod_2_val = 0
+				if (model_2.get(key) == None):
+					mod_2_val = 0
+					flag = 0
+				else:
+					mod_2_val = model_2.get(key)
+				if (flag):
+					prob_diff = prob_diff + abs(mod_2_val - model_1.get(key))
+				else:
+					prob_diff = prob_diff + mu*abs(mod_2_val - model_1.get(key))
+		else:
+			#if the second dictionary has less words
+			for key in model_2.keys():
+				mod_1_val = 0
+				if (model_1.get(key) == None):
+					mod_1_val = 0
+					flag = 0
+				else:
+					mod_1_val = model_1.get(key)
+				if (flag):
+					prob_diff = prob_diff + abs(mod_1_val - model_2.get(key))
+				else:
+					prob_diff = prob_diff + mu*abs(mod_1_val - model_2.get(key))
+		score = 1/prob_diff
+		score = score/(mu*abs(len(model_1)-len(model_2)))
+		return score
+
+
 	def findTopLinks(self, query, topWordsModel):
 		#Takes in a top word count and then 
 		#finds the corresponding links to those 
@@ -106,7 +162,7 @@ class WikiGraph():
 				backProb = (int(background[word]) + 1)/float(backgroundCount + 2000)
 			normalizedLanguageModel[word] = (unigram[word]/float(unigramCount))/float(backProb)
 		sortedNormalLanguageModel = sorted(normalizedLanguageModel.iteritems(), key=lambda item: -item[1])
-		return sortedNormalLanguageModel
+		return normalizedLanguageModel
 
   	def backgroundLanguageModel(self):
   		#This is a pretty terrible background model, but it is alright for testing
@@ -138,7 +194,7 @@ class WikiGraph():
 
 		
 if __name__ == '__main__':
-	wikipedia = WikiGraph('China')
+	wikipedia = WikiGraph('Black Keys')
 	# for word in wikipedia.topWords:
 	# 	print word
 	# for link in wikipedia.sortLinks:
