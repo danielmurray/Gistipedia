@@ -1,5 +1,27 @@
 <link href="/static/css/wikigraph.css" rel="stylesheet" type="text/css">
+<style>
+	.wikiNodeWrapper{
+		height: <%=nodeExpanded%>px;
+		width: <%=nodeExpanded%>px;
+	}
+</style>
 <div id="graphWrapper">
+	<% 
+	for ( var i=0; i < nodes.length; i++){
+		node = nodes[i]
+	%>
+	<style>
+		#wikiNode<%=i%>{
+			z-index: <%=4*nodes.length-i%>
+		}
+	</style>
+
+		<div id="wikiNode<%=i%>" name="<%node.name%>" class='wikiNodeWrapper'> 
+			
+		</div>
+	<%
+	}
+	%>
 </div>
-<div id="wikiNodeWrapper">
+<div id="wikiDetailWrapper">
 </div>

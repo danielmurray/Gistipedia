@@ -1,0 +1,62 @@
+.detailWrapper{
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
+
+.detailTitleWrapper{
+	height: 40%;
+	width: 100%;
+	overflow: hidden;
+	position: relative;
+}
+
+.filterForNow{
+	height: 100%;
+	width: 100%;
+	background: rgba(240,240,240,0.35);
+}
+
+.detailTitle{
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	z-index: 1;
+	color: rgba(41,41,41,1);
+}
+
+.detailTitle h1{
+	text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.detailTextWrapper{
+	height: 60%;
+	width: 100%;
+	overflow: scroll;
+}
+
+.readableText{
+	font-family: 'Lato-light';
+	color: rgba(45,45,45,1);
+	padding: 10px;
+}
+
+.detailTableWrapper{
+	height: 20%;
+}
+
+.detailCategoryWrapper{
+	height: 100%;
+	width: 50%;
+	float:left;
+}
+
+.detailLinkWrapper{
+	height: 100%;
+	width: 50%;
+	float:right;
+}
+
+.table{
+	overflow: scroll;
+}

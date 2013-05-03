@@ -117,7 +117,6 @@ var GistView = BaseView.extend({
     this.$el.html(renderedTemplate);
   },
   injectPictureOfTheDay: function() {
-    console.log($('#homeWrapper'))
     $('#homeWrapper').css('background', 'url(\'' + this.pictureOfTheDay['url'] +'\') no-repeat center center fixed' )
     $('.gistField').val(this.pictureOfTheDay['title'])
   },
@@ -129,174 +128,215 @@ var GistView = BaseView.extend({
 
 var WikiGraph = BaseView.extend({
   el: 'div',
-  events: {
-
+   events: {
+    "mouseover .wikiNode":  "highlight",
   },
   initialize: function(query) {
     //IMPORTANT LINE OF CODE 
     var that = this;
+    this.graphNodeCount = 25
+    this.nodeRadius = 50
+    this.nodeExpanded= 200
+
+    this.nodes = []
+    this.node = function (link, index){
+      this.id = "#wikiNode" + index;
+      this.name = link ;
+      this.text = link.toUpperCase();
+      this.x = 0;
+      this.y = 0;
+      this.graph = that
+      this.radius = this.graph.nodeRadius
+      this.expanded = this.graph.nodeExpanded
+
+      this.placeNodeCoord = function(x, y){
+        $(this.id).fadeOut()
+        this.x = x
+        this.y = y
+        xLeft = this.graph.xOrigin + x * this.graph.xScale - this.expanded/2
+        yTop = this.graph.yOrigin + y * this.graph.yScale - this.expanded/2
+
+        $(this.id).css('left',xLeft)
+        $(this.id).css('top',yTop)
+        $(this.id).fadeIn(500) 
+      }
+    }
+
+    this.template = loadTemplate("/static/views/wikigraph.html");
     
+    this.docRequest(query['query'],this.graphNodeCount)
+
+    this.on("assign", this.animateIn);
+    
+  },
+   route: function(part, remaining) {
+    
+    viewsToReturn = {}
+
+    viewsToReturn["#wikiDetailWrapper"] = new WikiDetail({model: this.model})
+    
+    for( var i = 0; i < this.nodes.length; i++){
+      node = this.nodes[i]
+      viewsToReturn[node.id] = new WikiNode(node)
+    }
+
+    return viewsToReturn;
+    
+
+  },
+  render: function() {
+    that = this
+    
+    var renderedTemplate = this.template({
+      nodes:this.nodes,
+      nodeExpanded:this.nodeExpanded
+    });
+
+    this.$el.html(renderedTemplate);
+
+    setTimeout(function(){
+      that.initGraph()
+    }, 6000);
+
+  },
+  highlight: function(click){
+
+  },
+  docRequest: function (query,doccount) {
+    that = this
     $.ajax({
       type: 'GET',
-      url: '/graph/'+query['query'],
+      data: "query=" + query + '&doccount=' + doccount,
+      url: '/root/',
       dataType: 'json',
       async: false,
       success: function(data){
+        console.log(data)
         that.model = new WikiDoc({
           'title': data.doc.title,
           'text': data.doc.text,
           'summary': data.doc.summary,
-          'image': data.doc.randomImageURL,
+          'image': data.doc.randomImage,
           'categories': data.doc.categories,
-          'links': data.links
+          'links': data.doc.links
         })
+        console.log(that.model)
+        that.initNodes()
       },
       error: function(data){
         console.log('Request Failed');
       }
     });
-
-    // var randomNumber = Math.floor(Math.random()*6)
-    // var tempNameArray = [
-    //   'Japan',
-    //   'Sumo Wrestling',
-    //   'North Korea Propaganda',
-    //   'Taipei',
-    //   'Ludwig van Beethoven',
-    //   'Xi\'an Terracotta Soldiers'
-    // ]
-
-    // this.model = new WikiDoc({
-    //   'title': tempNameArray[randomNumber],
-    //   'text': "Lorem Ipsum suspendisse potenti. Vestibulum rhoncus. Ut rhoncus turpis a massa. Vivamus adipiscing vestibulum nunc. Maecenas vitae lorem. Donec mi. Donec justo quam, laoreet ut, fermentum at, blandit vitae, ligula. Vestibulum diam. Etiam ut velit nec lacus consectetuer sodales. Integer accumsan. Maecenas eleifend vestibulum libero. Vestibulum metus ligula, volutpat vitae, feugiat at, blandit quis, lorem. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce varius scelerisque est. Aliquam turpis dui, eleifend in, elementum vel, porta vitae, velit. Cras hendrerit vehicula enim. Sed auctor. In hac habitasse platea dictumst. Nulla lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec accumsan ante non leo. Donec sollicitudin mi et magna. Proin non est. Vestibulum diam. Quisque in enim. Sed id dui. Nunc nec sapien. Nulla lacus. Quisque in ante vel nunc semper pellentesque. Nam sit amet lacus sit amet ipsum auctor eleifend. Quisque vitae justo eu neque mattis pellentesque. Suspendisse tristique. Nulla facilisi. Pellentesque hendrerit tristique turpis. Pellentesque eget mi. Vestibulum a lacus. Lorem Ipsum suspendisse potenti. Vestibulum rhoncus. Ut rhoncus turpis a massa. Vivamus adipiscing vestibulum nunc. Maecenas vitae lorem. Donec mi. Donec justo quam, laoreet ut, fermentum at, blandit vitae, ligula. Vestibulum diam. Etiam ut velit nec lacus consectetuer sodales. Integer accumsan. Maecenas eleifend vestibulum libero. Vestibulum metus ligula, volutpat vitae, feugiat at, blandit quis, lorem. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce varius scelerisque est. Aliquam turpis dui, eleifend in, elementum vel, porta vitae, velit. Cras hendrerit vehicula enim. Sed auctor. In hac habitasse platea dictumst. Nulla lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec accumsan ante non leo. Donec sollicitudin mi et magna. Proin non est. Vestibulum diam. Quisque in enim. Sed id dui. Nunc nec sapien. Nulla lacus. Quisque in ante vel nunc semper pellentesque. Nam sit amet lacus sit amet ipsum auctor eleifend. Quisque vitae justo eu neque mattis pellentesque. Suspendisse tristique. Nulla facilisi. Pellentesque hendrerit tristique turpis. Pellentesque eget mi. Vestibulum a lacus.",
-    //   'image': 'static/images/' + randomNumber + '.jpg',
-    //   'categories': [
-    //     'Asian Country',
-    //     'Super Power',
-    //     'Weird Porn',
-    //     'Anime',
-    //     'Economically Stable',
-    //     'First World Country'
-    //   ],
-    //   'links': [
-    //     'Asian Country',
-    //     'Super Power',
-    //     'Weird Porn',
-    //     'Anime',
-    //     'Economically Stable',
-    //     'First World Country'
-    //   ]
-    // });
-
-    this.on("assign", this.animateIn);
-    this.template = loadTemplate("/static/views/wikigraph.html");
-    
   },
-  route: function(part, remaining) {
-    
-    wikinode = new WikiNode({model: this.model})
-    
-    return {
-      "#wikiNodeWrapper": wikinode
-    };
-    
-
+  initNodes:function(){
+    console.log(this)
+    nodeLength = (this.graphNodeCount < this.model.get('links').length) ? this.graphNodeCount : this.model.get('links').length
+    for ( var i=0; i < nodeLength; i++){
+      link = this.model.get('links')[i][0]
+      node = new this.node(link, i)
+      this.nodes.push(node)
+    }
   },
-  render: function() {
-    var renderedTemplate = this.template({model:this.model});
-    this.$el.html(renderedTemplate);
+  initGraph:function(){
+    this.xWidth = that.$('#graphWrapper').width()
+    this.yHeight = that.$('#graphWrapper').height()
+    this.xOrigin = this.xWidth/2
+    this.yOrigin = this.yHeight/2
+
+    //Essentially Pixels per X or Y value
+    this.xScale = this.xWidth / 200
+    this.yScale = this.yHeight / 200
+
+    //Circle Implementation
+    pieSliceDegree = 360/this.graphNodeCount
+
+    for ( var i=0; i < this.nodes.length; i++){
+      node = this.nodes[i]
+      $(node.id).css('position', 'absolute')
+      theta = (pieSliceDegree*i-90)/180 * Math.PI
+      x = Math.cos(theta)
+      y = Math.sin(theta)
+      xScale = Math.random() * 90
+      yScale = Math.random() * 90
+      // xScale = yScale = 80
+      node.placeNodeCoord(x*xScale, y*yScale)
+    }
+
   }
 });
 
 var WikiNode = BaseView.extend({
   el: 'div',
-  initialize: function(model) {
+  initialize: function( data ) {
     //IMPORTANT LINE OF CODE 
     var that = this;
-    this.model = model['model']
+
+    this.rootTitle = data.graph.model.get('title')
+    this.model = new WikiDoc({
+      'id': data.id,
+      'name': data.name, 
+      'title': data.text,
+      'radius': data.radius,
+      'expanded':data.expanded
+    })
+
+    this.nodeRequest(this.rootTitle, this.model.get('name'), this.model.get('id') + ' .wikiNode')    
+
     this.on("assign", this.animateIn);
     this.template = loadTemplate("/static/views/wikinode.html");
     
   },
+  nodeRequest: function (rootTitle, nodeTitle, target) {
+    theOtherThing = this
+    $.ajax({
+      type: 'GET',
+      data: "root=" + escape(rootTitle) + '&node=' + escape(nodeTitle) ,
+      url: '/node/',
+      dataType: 'json',
+      async: true,
+      success: function(data){
+        theOtherThing.model.set({
+          'thumb': data.thumb,
+          'thumbSmall': data.thumbSmall
+        })
+        $(target).css(
+          'background', 'rgba(240,240,240,1) url(' + theOtherThing.model.get('thumbSmall') + ') no-repeat center center'
+        )
+      },
+      error: function(data){
+        console.log('Request Failed');
+      }
+    });
+  },
   route: function(part, remaining) {
 
-    categorytable = new TableView({collection: this.model.get('categories')})
-    linktable = new TableView({collection: this.model.get('links')})
-
-    return {
-      "#nodeCategories": categorytable,
-      "#nodeLinks": linktable
-    }  
+    return {}  
     
 
   },
   render: function() {
     var renderedTemplate = this.template({model:this.model});
     this.$el.html(renderedTemplate);
-  },
-  animateIn: function(click){
-    
-    // if(!this.currentpane)
-    //   return;
-
-    // var slider = $('.' + this.currentpane.id + '.icon-nav .slider');
-    // slider.animate({
-    //   width: '100%'
-    // },{
-    //   duration: 500, 
-    //   queue: true
-    // });
-
   }
 });
 
-var TableView = BaseView.extend({
+var WikiDetail = BaseView.extend({
   el: 'div',
-  initialize: function(data) {
-    this.template = loadTemplate("/static/views/table.html");
-    this.collection = data.collection;
-  },
-  route: function(part) {
+  initialize: function(model) {
+    //IMPORTANT LINE OF CODE 
     var that = this;
+    this.model = model['model']
+    this.template = loadTemplate("/static/views/wikidetail.html");
+    
+  },
+  route: function(part, remaining) {
 
-    //pointers for this view
-    this.tableEntries = {};
+    return {}  
+    
 
-    //views to be returned
-    tableEntriesToRendered = {};
-
-    _.each(this.collection, function(model,i) {
-      tableentry = new TableViewEntry({model: model});
-      tableEntriesToRendered['#tableEntry'+i] = tableentry;
-      that.tableEntries[model] = {};
-      that.tableEntries[model].id = model;
-      that.tableEntries[model].view = tableentry;
-      that.tableEntries[model].model = model;
-
-    });
-
-
-    console.log(tableEntriesToRendered)
-
-    return tableEntriesToRendered;
   },
   render: function() {
-    var renderedTemplate = this.template({collection: this.collection});
-    this.$el.html(renderedTemplate);
-  }
-});
-
-var TableViewEntry = BaseView.extend({
-  el: 'div',
-  initialize: function(data) {
-    this.template = loadTemplate("/static/views/tableentry.html");
-    this.words = data.model;
-  },
-  route: function(part) {
-    return {};
-  },
-  render: function() {
-    var renderedTemplate = this.template({model:this.words});
+    var renderedTemplate = this.template({model:this.model});
     this.$el.html(renderedTemplate);
   }
 });

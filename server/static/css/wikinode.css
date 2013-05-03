@@ -1,61 +1,35 @@
-.nodeWrapper{
+.wikiNodeContainer{
 	height: 100%;
 	width: 100%;
+}
+
+.wikiNode{
+	background-color: rgba(240,240,240,1);
+
+  	text-align: center;
+    text-overflow: ellipsis;
+
+    margin: 26% auto 0 auto;
+}
+
+.backgroundFilter{
+	background-color: rgba(240,240,240,0.35);
+	height: 100%;
+    width: 100%;
 	overflow: hidden;
 }
 
 .nodeTitleWrapper{
-	height: 40%;
+
+}
+
+.linkText{
 	width: 100%;
-	overflow: hidden;
-	position: relative;
-}
 
-.filterForNow{
-	height: 100%;
-	width: 100%;
-	background: rgba(240,240,240,0.35);
-}
-
-.nodeTitle{
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-	z-index: 1;
-	color: rgba(41,41,41,1);
-}
-
-.nodeTitle h1{
-	text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
-}
-
-.nodeTextWrapper{
-	height: 50%;
-	width: 100%;
-	overflow: scroll;
-}
-
-.readableText{
-	font-family: 'Lato-light';
-	padding: 10px;
-}
-
-.nodeTableWrapper{
-	height: 20%;
-}
-
-.nodeCategoryWrapper{
-	height: 100%;
-	width: 50%;
-	float:left;
-}
-
-.nodeLinkWrapper{
-	height: 100%;
-	width: 50%;
-	float:right;
-}
-
-.table{
-	overflow: scroll;
+	display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+    font-family: 'Lato-bold';
+    font-size:  10px;
+	word-wrap:break-word;
 }

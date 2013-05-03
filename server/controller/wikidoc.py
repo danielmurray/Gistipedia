@@ -3,6 +3,13 @@ import requests
 import json
 import re
 
+backgroundModelFile = open('./controller/wikiOccurance.txt', 'r')
+backgroundModel = {}
+for line in backgroundModelFile:
+	word = line.split(' ')[0]
+	probability = line.split(' ')[1].split('\n')[0]
+	backgroundModel[word] = probability
+
 class WikiDoc():
 
   	def __init__(self, query):
@@ -14,33 +21,85 @@ class WikiDoc():
   		#Footer is filled in articleBody, using this subset of text decreases runtime
 		self.footer = ''
   		self.textAndLinks = self.preFormat(self.markup, self.pageTitle)
+  		
+  		#Nicely formatted text for front end
   		self.summary = self.firstSentences(self.textAndLinks)
+
+  		#Document General data
   		self.links = self.docLinks(self.textAndLinks)
+  		self.sortLinks = sorted(self.hashMap(self.links).iteritems(), key=lambda item: -item[1])
   		self.text = self.rawText(self.textAndLinks)
   		self.categories = self.docCategories(self.footer)
+  		self.languageModel = self.languageModel(self.text)
+		
+		#Image Acquisition
 		self.images = self.imageURLS(self.pageTitle)
+		print len(self.images)
 		self.randomImage = ''
 		self.randomImageURL = ''
 	  	if len(self.images) > 0:
 	  		self.randomImage = choice(self.images)
-	  		self.randomImageURL = self.createImageURL( self.randomImage['file'], '400px')
+	  		self.randomImageURL = self.randomImage['thumbBig']
 
 	def jsonify(self):
 		jsonGoodies = {
 			'title': self.pageTitle,
 			'text': self.text,
 			'summary': self.summary,
-			'links': self.links,
+			'languageModel': self.languageModel,
+			'links': self.sortLinks,
 			'categories': self.categories,
 			'images': self.images,
-			'randomImageURL': self.randomImageURL
+			'randomImage': self.randomImage
 		}
 		return jsonGoodies
 
+	def languageModel(self, text):
+  		backgroundLanguageModel = backgroundModel
+		words = re.split(' ', text)
+		unigramLanguageModel = self.hashMap(words)
+		#Creating a normalize language model of document words
+		normalizedLanguageModel = self.normalLangModel(unigramLanguageModel,backgroundLanguageModel)
+		return normalizedLanguageModel
+
+
+	def hashMap(self, textArray):
+		languageModel = {}
+		for word in textArray:
+			if word != '':
+				if languageModel.get(word) != None:
+					languageModel[word] += 1
+				else:
+					languageModel[word] = 1
+		return languageModel
+
+	def normalLangModel(self, unigram, background):
+
+		backgroundCount = len(background)
+		unigramCount = len(unigram)
+		normalizedLanguageModel = {}
+		for word in unigram:
+			#if word in unigram does not exist, don't just divide by zero
+			#else divide by the background word count + 1
+			if background.get(word) == None:
+				backProb = 1/float(backgroundCount + 2000)
+			else:
+				backProb = (int(background[word]) + 1)/float(backgroundCount + 2000)
+			normalizedLanguageModel[word] = (unigram[word]/float(unigramCount))/float(backProb)
+		return normalizedLanguageModel
+
+	def topWords(self, normalizedLanguageModel):
+		return sorted(normalizedLanguageModel.iteritems(), key=lambda item: -item[1])
+
   	def preFormat(self, text, pageTitle):
   		wikimarkup = text
+  		# print wikimarkup[:500].encode('ascii', 'ignore')
    		wikimarkup = self.articleBody(wikimarkup,pageTitle)
+  		# print wikimarkup[:500].encode('ascii', 'ignore')
+  		wikimarkup = self.removeCitationRefs(wikimarkup)
+  		# print wikimarkup[:500].encode('ascii', 'ignore')
 		wikimarkup = self.tagParse('{{', '}}', wikimarkup, 'delete')
+  		# print wikimarkup[:500].encode('ascii', 'ignore')
 		wikimarkup = self.removeCitationRefs(wikimarkup)		
 		wikimarkup = self.removeComments(wikimarkup)
 		wikimarkup = self.removeImages(wikimarkup)
@@ -79,8 +138,6 @@ class WikiDoc():
   		return categories
 
   	def imageURLS(self, pageTitle):
-  		wikiImageMarkup = self.findImages(pageTitle)
-  		imageDicts = []
   		acceptableMimes = [
 			'jpeg',
 			'jpg',
@@ -91,10 +148,14 @@ class WikiDoc():
 			'PNG',
 			'GIF'
 		]
+  		wikiImageMarkup = self.findImages(pageTitle)
+  		if len(wikiImageMarkup) == 0:
+  			return []
+  		imageDicts = []
 		for imageMarkup in wikiImageMarkup.itervalues():
 			imageInfo = imageMarkup.get('imageinfo')
 			if imageInfo == None or len(imageInfo) == 0:
-				break
+				continue
 			else:
 				imageInfo = imageInfo[0]
 				if any(x in imageInfo.get('mime') for x in acceptableMimes):
@@ -105,6 +166,7 @@ class WikiDoc():
 					imageDict['width'] = imageInfo['width']
 					imageDict['size'] = imageInfo['size']
 					imageDict['url'] = imageInfo['url']
+					imageDict['thumbBig'] = imageInfo['thumburl']
 					imageDicts.append(imageDict)
 		return imageDicts
 
@@ -177,10 +239,13 @@ class WikiDoc():
 		finalStringIndices = []
 		# for i, index in enumerate(stringIndices):
 		# 	print index
+		lastStringStart = 0
 		for indexTuples in stringIndices:
 			if indexTuples[1] == 0:
 				finalStringIndices.append([indexTuples[0], None])
-			elif len(finalStringIndices) > 0: #indexTuples[1] must equal 1
+			else:
+				if len(finalStringIndices) is 0: #If this is the firs topening tag put the string star before it
+					finalStringIndices.append([0, None])
 				finalStringIndices[-1][1] = indexTuples[0]
 		# for i, index in enumerate(finalStringIndices):
 		# 	print index
@@ -234,6 +299,35 @@ class WikiDoc():
 		"""
 		return re.sub('[^\w\s]', ' ', text).lower()
 
+	
+  	def backgroundLanguageModel(self):
+  		#This is a pretty terrible background model, but it is alright for testing
+  		#With the help of professor zhang hopefully we can get a better background model
+  		wikipedia = ''
+		wikipedia += WikiDoc('Life').jsonify()['text']
+		wikipedia += WikiDoc('Philosophy').jsonify()['text']
+		wikipedia += WikiDoc('Reality').jsonify()['text']
+		wikipedia += WikiDoc('Language').jsonify()['text']
+		wikipedia += WikiDoc('Art').jsonify()['text']
+		wikipedia += WikiDoc('Europe').jsonify()['text']
+		wikipedia += WikiDoc('Asia').jsonify()['text']
+		wikipedia += WikiDoc('North America').jsonify()['text']
+		wikipedia += WikiDoc('Science').jsonify()['text']
+		wikipedia += WikiDoc('Math').jsonify()['text']
+		wikipedia += WikiDoc('History').jsonify()['text']
+		wikipedia += WikiDoc('Psychology').jsonify()['text']
+		wikipedia += WikiDoc('Literature').jsonify()['text']
+		wikipedia += WikiDoc('Africa').jsonify()['text']
+		wikipedia += WikiDoc('Physics').jsonify()['text']
+		wikipedia += WikiDoc('Chemistry').jsonify()['text']
+		wikipedia += WikiDoc('Sociology').jsonify()['text']
+		wikipedia += WikiDoc('Business').jsonify()['text']
+		wikipedia += WikiDoc('Politics').jsonify()['text']
+		wikipedia += WikiDoc('Engineering').jsonify()['text']
+		wikipedia += WikiDoc('Biology').jsonify()['text']
+		wikipedia += WikiDoc('Space').jsonify()['text']
+		return wikipedia
+
   	def findImages(self, pageTitle):
 	    """
 	    Acquire Wikipage's Images witha list of URLs 
@@ -247,7 +341,8 @@ class WikiDoc():
 			"generator": 'images',
 			"gimlimit": 500,
 			"prop": 'imageinfo',
-			"iiprop": 'url|mime|size'
+			"iiprop": 'url|mime|size',
+			"iiurlwidth": '500px'
 		}
 	    r = self.fetch(self.url, queryparams)
 	    if not r.json():
@@ -256,7 +351,7 @@ class WikiDoc():
 	        return[]
 	    return r.json()['query']['pages']
 
-	def createImageURL(self, fileTitle, width):
+	def createImageURL(self, fileTitle, width, height):
 	    """
 	    Returns the link in the Wikipedia commons to the 
 	    image with the correct height and width
@@ -267,7 +362,8 @@ class WikiDoc():
 			"titles": fileTitle,
 			"prop": 'imageinfo',
 			"iiprop": 'url',
-			"iiurlwidth": width
+			"iiurlwidth": width,
+			"iiurlheight": height,
 		}
 	    r = self.fetch(self.url, queryparams)
 	    if not r.json:
@@ -321,8 +417,8 @@ class WikiDoc():
 		return r
 
 if __name__ == '__main__':
-	wikipedia = WikiDoc('China')
-	# print wikipedia.images
+	query = "people's liberation army"
+	wikipedia = WikiDoc(query)
 	# for link in wikipedia.links:
 	# 	print link
 	# for category in wikipedia.categories:

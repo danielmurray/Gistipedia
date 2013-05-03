@@ -1,37 +1,46 @@
+from random import choice
 import json
 from wikidoc import WikiDoc
 import re
-import gensim
-from gensim import corpora, models, similarities
+from numpy import *
+from numpy.linalg import *
+from numpy.random import *
 
-backgroundModelFile = open('./wikiOccurance.txt', 'r')
-backgroundModel = {}
-for line in backgroundModelFile:
-	word = line.split(' ')[0]
-	probability = line.split(' ')[1].split('\n')[0]
-	backgroundModel[word] = probability
+
 
 class WikiGraph():
 
-  	def __init__(self, query):
+  	def __init__(self, query, doccount):
+  		self.doccount = doccount
   		self.rootDoc = WikiDoc(query)
   		self.text  = self.rootDoc.text
   		self.links = self.rootDoc.links
-  		# self.wikiDocs = []
-  		self.topWords = self.findTopWords(self.text) #Soon we may add the option to pass a variable
-  		self.sortLinks = self.languageModel(self.links)
-  		self.sortLinks = sorted(self.sortLinks.iteritems(), key=lambda item: -item[1])
   		self.wikiDocs = []
-  		for i in range(0,10):
-  			self.wikiDocs.append(WikiDoc(self.sortLinks[i][0]))
-  		print "links loaded"
-  		self.similarityMatrix = self.linkSimilarityMatrix(self.wikiDocs)
-  		print "similarities computed"
+  		self.wikiDocs.append(self.rootDoc)
+
+
+  	def addChileNode(self, query):
+		pageTitle = self.rootDoc.findArticles(query)['query']['search'][0]['title']
+  		images = self.rootDoc.imageURLS(pageTitle)
+  		thumbImage = {
+  			'thumbSmall': '',
+  			'thumbBig': ''
+  		}
+	  	if len(images) > 0:
+	  		randomImage = choice(images)
+	  		thumbImage['thumb'] = randomImage
+	  		thumbImage['thumbSmall'] = self.rootDoc.createImageURL( randomImage['file'], '250px', '250px')
+	  	return thumbImage
+
+  	def nodeVectors():
+  		# self.similarityMatrix = self.linkSimilarityMatrix(self.wikiDocs)
+  		# self.YVectors, self.eigenVectors = self.mds(self.similarityMatrix)
+  		# print query
+  		print 'hello world'
 
   	def jsonify(self):
 		jsonGoodies = {
-			'doc': self.rootDoc.jsonify(),
-			'links': self.sortLinks
+			'doc': self.rootDoc.jsonify()
 		}
 		return jsonGoodies
 
@@ -50,8 +59,8 @@ class WikiGraph():
 				elif similarityMatrix.get(link2):
 					similarityMatrix[link1][link2] = similarityMatrix[link2].get(link1)
 				else:
-					score = self.computeSimilarity(languageModels[link1], languageModels[link2])
-					print str(score*pow(10,8)) + "     " + link1 + "      " + link2
+					similarityMatrix[link1][link2] = self.computeSimilarity(languageModels[link1], languageModels[link2])*pow(10,5)
+					# print str(similarityMatrix[link1][link2]) + "     " + link1 + "      " + link2
 		return similarityMatrix
 
 	def computeSimilarity(self, model_1, model_2):
@@ -88,6 +97,31 @@ class WikiGraph():
 		score = 1/prob_diff
 		score = score/(mu*abs(len(model_1)-len(model_2)))
 		return score
+
+	def mds(self, simMatrix):
+	    """
+	    Multidimensional Scaling - Given a matrix of interpoint distances,
+	    find a set of low dimensional points that have similar interpoint
+	    distances.
+	    """
+	    simMatrixArray = []
+	    for link1 in simMatrix:
+	    	simMatrixArrayRow = []
+	    	for link2 in simMatrix:
+	    		simMatrixArrayRow.append( 1/float(simMatrix[link1][link2]) )
+	    	simMatrixArray.append(simMatrixArrayRow)
+	    # print simMatrixArray
+	    d = array(simMatrixArray)
+	    (n,n) = d.shape
+	    E = (-0.5 * d**2)
+	    # Use mat to get column and row means to act as column and row means.
+	    Er = mat(mean(E,1))
+	    Es = mat(mean(E,0))
+	    # From Principles of Multivariate Analysis: A User's Perspective (page 107).
+	    F = array(E - transpose(Er) - Es + mean(E))
+	    [U, S, V] = svd(F)
+	    Y = U * sqrt(S)
+	    return (Y[:,0:2], S)
 
 
 	def findTopLinks(self, query, topWordsModel):
@@ -130,71 +164,12 @@ class WikiGraph():
 			else:
 				hashmap[term] = 1
 
-	def findTopWords(self, text):
-  		backgroundLanguageModel = backgroundModel
-		words = re.split(' ', text)
-		unigramLanguageModel = self.languageModel(words)
-		#Creating a normalize language model of document words
-		normalizedLanguageModel = self.sortNormalLangModel(unigramLanguageModel,backgroundLanguageModel)
-		return normalizedLanguageModel
-
-	def languageModel(self, textArray):
-		languageModel = {}
-		for word in textArray:
-			if word != '':
-				if languageModel.get(word) != None:
-					languageModel[word] += 1
-				else:
-					languageModel[word] = 1
-		return languageModel
-
-	def sortNormalLangModel(self, unigram, background):
-
-		backgroundCount = len(background)
-		unigramCount = len(unigram)
-		normalizedLanguageModel = {}
-		for word in unigram:
-			#if word in unigram does not exist, don't just divide by zero
-			#else divide by the background word count + 1
-			if background.get(word) == None:
-				backProb = 1/float(backgroundCount + 2000)
-			else:
-				backProb = (int(background[word]) + 1)/float(backgroundCount + 2000)
-			normalizedLanguageModel[word] = (unigram[word]/float(unigramCount))/float(backProb)
-		sortedNormalLanguageModel = sorted(normalizedLanguageModel.iteritems(), key=lambda item: -item[1])
-		return normalizedLanguageModel
-
-  	def backgroundLanguageModel(self):
-  		#This is a pretty terrible background model, but it is alright for testing
-  		#With the help of professor zhang hopefully we can get a better background model
-  		wikipedia = ''
-		wikipedia += WikiDoc('Life').jsonify()['text']
-		wikipedia += WikiDoc('Philosophy').jsonify()['text']
-		wikipedia += WikiDoc('Reality').jsonify()['text']
-		wikipedia += WikiDoc('Language').jsonify()['text']
-		wikipedia += WikiDoc('Art').jsonify()['text']
-		wikipedia += WikiDoc('Europe').jsonify()['text']
-		wikipedia += WikiDoc('Asia').jsonify()['text']
-		wikipedia += WikiDoc('North America').jsonify()['text']
-		wikipedia += WikiDoc('Science').jsonify()['text']
-		wikipedia += WikiDoc('Math').jsonify()['text']
-		wikipedia += WikiDoc('History').jsonify()['text']
-		wikipedia += WikiDoc('Psychology').jsonify()['text']
-		wikipedia += WikiDoc('Literature').jsonify()['text']
-		wikipedia += WikiDoc('Africa').jsonify()['text']
-		wikipedia += WikiDoc('Physics').jsonify()['text']
-		wikipedia += WikiDoc('Chemistry').jsonify()['text']
-		wikipedia += WikiDoc('Sociology').jsonify()['text']
-		wikipedia += WikiDoc('Business').jsonify()['text']
-		wikipedia += WikiDoc('Politics').jsonify()['text']
-		wikipedia += WikiDoc('Engineering').jsonify()['text']
-		wikipedia += WikiDoc('Biology').jsonify()['text']
-		wikipedia += WikiDoc('Space').jsonify()['text']
-		return wikipedia
-
 		
 if __name__ == '__main__':
-	wikipedia = WikiGraph('Black Keys')
+	wikipedia = WikiGraph('China',25)
+	wikipedia.addChileNode('people%27s%20liberation%20army')
+	# for i in range (0,10):
+	# 	print wikipedia.wikiDocs[i].pageTitle + "     " + str(wikipedia.YVectors[i])
 	# for word in wikipedia.topWords:
 	# 	print word
 	# for link in wikipedia.sortLinks:

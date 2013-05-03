@@ -1,34 +1,30 @@
 <link href="/static/css/wikinode.css" rel="stylesheet" type="text/css">
 <style>
-	body{
-		background: url(<%=model.get('image')%>) no-repeat center center;
+	<% 
+		diameter = 2*model.get('radius')
+	%>
+	.wikiNodeContainer{
+		line-height: <%=model.get('expanded')%>px;
+	}
+	.wikiNode{
+		height: <%=diameter%>px;
+		width: <%=diameter%>px;
+		border-radius: <%=diameter%>px;
+	}
+	.backgroundFilter{
+		border-radius: <%=diameter%>px;
+	}
+	.nodeTitleWrapper{
+		height: <%=diameter%>px;
+		width: <%=diameter%>px;
+		line-height: <%=diameter%>px;
 	}
 </style>
-<div class='nodeWrapper'>
-	<div class='nodeTitleWrapper'>
-		<div class='filterForNow'></div>
-		<div class='nodeTitle'>
-			<h1><%=model.get('title')%></h1>
-		</div>
-	</div>
-	<div class='nodeTextWrapper'>
-		<div class='nodeText'>
-			<p class='readableText'><%=model.get('summary')%></p>
-		</div>
-	</div>
-	<div class='nodeTableWrapper'>
-		<div class='nodeCategoryWrapper'>
-			<div class='categoryHeader'>
-				<h3>Categories<h2>
-			</div>
-			<div id='nodeCategories' class='table'>
-			</div>
-		</div>
-		<div class='nodeLinkWrapper'>
-			<div class='linkHeader'>
-				<h3>Links<h2>
-			</div>
-			<div id='nodeLinks' class='table'>
+<div class='wikiNodeContainer'>
+	<div class="wikiNode">
+		<div class='backgroundFilter'>
+			<div class="nodeTitleWrapper">
+				<span class='linkText'><%=model.get('title')%></span>
 			</div>
 		</div>
 	</div>
