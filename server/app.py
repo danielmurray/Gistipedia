@@ -5,6 +5,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 import json
 import hashlib
 import controller
+import time
 
 # create our little application :)
 app = Flask(__name__)
@@ -23,20 +24,30 @@ def backgroundImage():
     return json.dumps(app.picOfTheDay.jsonify())
 
 @app.route('/root/', methods=['GET'])
-def graph():
+def root():
     query =  request.args['query']
     doccount =  request.args['doccount']
     wikiPage = controller.WikiGraph(query, doccount)
-    app.wikiRequests[wikiPage.jsonify()['doc']['title']] = wikiPage
+    app.wikiRequests[wikiPage.jsonify()['doc']['title'].lower()] = wikiPage
     return json.dumps(wikiPage.jsonify())
 
 @app.route('/node/', methods=['GET'])
 def node():
-    root =  request.args['root']
-    node =  request.args['node']
+    root =  request.args['root'].lower()
+    node =  request.args['node'].lower()
     graph = app.wikiRequests.get(root)
-    nodeDoc = graph.addChileNode(node)
+    nodeDoc = graph.addChildNode(node)
     return json.dumps(nodeDoc)
+
+@app.route('/vectors/', methods=['GET'])
+def vectors():
+    root =  request.args['root'].lower()
+    graph = app.wikiRequests.get(root)
+    if graph.waitForVectors():
+        vectors = graph.computeVectors()
+        return json.dumps(vectors)
+    else:
+        return []
 
 if __name__ == '__main__':
     app.run()

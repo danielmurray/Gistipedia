@@ -8,6 +8,7 @@
 
 .wikiNodeWrapper{
 	display: none;
+	position: absolute;
 }
 
 #wikiDetailWrapper{

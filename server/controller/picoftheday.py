@@ -17,11 +17,12 @@ class PicOfTheDay():
   		# Random Wikipedia Picture Implementation
   		self.file = self.randomFileName()
   		self.url = self.fileURL(self.file, '1310px')
-  		self.title = self.findTitle("[[" + self.file + "]]")
+  		self.query = self.filenameToQuery(self.file)
+  		self.doc = WikiDoc(self.query)
 
   	def jsonify(self):
   		return {
-  			'title': self.title,
+  			'title': self.doc.pageTitle,
   			'file': self.file,
   			'url': self.url,
   		}
@@ -100,6 +101,13 @@ class PicOfTheDay():
 		for title in titles:
 			concatenatedTitles.append(title.split('|')[-1])
 		return concatenatedTitles[0]
+
+	def filenameToQuery(self, fileName):
+		fileName = fileName.split('.')[0]
+		fileName = re.sub('\P{L}+', ' ', fileName)
+		fileName = fileName.split(' ')[:2]
+		query = '||'.join(fileName)
+		return query
 
 if __name__ == '__main__':
 	picoftheday = PicOfTheDay()

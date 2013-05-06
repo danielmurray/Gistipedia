@@ -129,20 +129,24 @@ var GistView = BaseView.extend({
 var WikiGraph = BaseView.extend({
   el: 'div',
    events: {
-    "mouseover .wikiNode":  "highlight",
+    "mouseover .wikiNodeWrapper":  "highlight",
+    "mouseout .wikiNodeWrapper":  "unhighlight",
+    "click .wikiNodeWrapper":  "navigate"
   },
   initialize: function(query) {
     //IMPORTANT LINE OF CODE 
     var that = this;
-    this.graphNodeCount = 25
+    this.graphNodeCount = 3
     this.nodeRadius = 50
-    this.nodeExpanded= 200
+    this.nodeExpanded= 125
 
     this.nodes = []
     this.node = function (link, index){
-      this.id = "#wikiNode" + index;
-      this.name = link ;
-      this.text = link.toUpperCase();
+      this.id = "wikiNode" + index
+      this.idNode = "node" + index
+      this.name = link.title
+      this.text = link.title.toUpperCase()
+      this.context = link.sentences
       this.x = 0;
       this.y = 0;
       this.graph = that
@@ -150,15 +154,26 @@ var WikiGraph = BaseView.extend({
       this.expanded = this.graph.nodeExpanded
 
       this.placeNodeCoord = function(x, y){
-        $(this.id).fadeOut()
+        $('#' + this.id).fadeOut()
         this.x = x
         this.y = y
         xLeft = this.graph.xOrigin + x * this.graph.xScale - this.expanded/2
         yTop = this.graph.yOrigin + y * this.graph.yScale - this.expanded/2
 
-        $(this.id).css('left',xLeft)
-        $(this.id).css('top',yTop)
-        $(this.id).fadeIn(500) 
+        $('#' + this.id).css('left',xLeft)
+        $('#' + this.id).css('top',yTop)
+        $('#' + this.id).fadeIn(500) 
+      }
+
+      this.changeNodeCoord = function(x, y){
+        this.x = x
+        this.y = y
+        xLeft = this.graph.xOrigin + x * this.graph.xScale - this.expanded/2
+        yTop = this.graph.yOrigin + y * this.graph.yScale - this.expanded/2
+        $('#' + this.id).animate({
+          left: xLeft,
+          top: yTop
+        },5000)
       }
     }
 
@@ -177,7 +192,7 @@ var WikiGraph = BaseView.extend({
     
     for( var i = 0; i < this.nodes.length; i++){
       node = this.nodes[i]
-      viewsToReturn[node.id] = new WikiNode(node)
+      viewsToReturn['#' + node.id] = new WikiNode(node)
     }
 
     return viewsToReturn;
@@ -186,21 +201,59 @@ var WikiGraph = BaseView.extend({
   },
   render: function() {
     that = this
-    
     var renderedTemplate = this.template({
       nodes:this.nodes,
       nodeExpanded:this.nodeExpanded
     });
 
     this.$el.html(renderedTemplate);
+    this.vectorRequest(this.model.get('title'))
 
     setTimeout(function(){
       that.initGraph()
-    }, 6000);
+    }, 200);
 
   },
   highlight: function(click){
+    $(click.currentTarget).clearQueue()
+    $('#' + click.currentTarget.id + ' .wikiNode').clearQueue()
+    $('#' + click.currentTarget.id +  ' .backgroundFilter').clearQueue()
+    $('#' + click.currentTarget.id +  ' .contextSentence').clearQueue()
 
+
+    this.zIndex = $(click.currentTarget).css('z-index')
+    $(click.currentTarget).css('z-index',1000)
+    $('#' + click.currentTarget.id + ' .wikiNode').animate({
+      height: this.nodeExpanded * 2,
+      width: this.nodeExpanded * 2,
+      borderRadius: 0
+    })
+    $('#' + click.currentTarget.id +  ' .backgroundFilter').animate({
+      height: this.nodeExpanded * 2,
+      width: this.nodeExpanded * 2,
+      borderRadius: 0
+    })
+  },
+  unhighlight: function(click){
+    $(click.currentTarget).clearQueue()
+    $('#' + click.currentTarget.id + ' .wikiNode').clearQueue()
+    $('#' + click.currentTarget.id +  ' .backgroundFilter').clearQueue()
+    $('#' + click.currentTarget.id +  ' .contextSentence').clearQueue()
+
+    $(click.currentTarget).css('z-index',this.zIndex)
+    $('#' + click.currentTarget.id + ' .wikiNode').animate({
+      height: this.nodeRadius * 2,
+      width: this.nodeRadius * 2,
+      borderRadius: this.nodeRadius * 2
+    })
+    $('#' + click.currentTarget.id +  ' .backgroundFilter').animate({
+      height: this.nodeRadius * 2,
+      width: this.nodeRadius * 2,
+      borderRadius: this.nodeRadius * 2
+    })
+  },
+  navigate: function(click){
+    console.log(detail = click.currentTarget)
   },
   docRequest: function (query,doccount) {
     that = this
@@ -211,7 +264,6 @@ var WikiGraph = BaseView.extend({
       dataType: 'json',
       async: false,
       success: function(data){
-        console.log(data)
         that.model = new WikiDoc({
           'title': data.doc.title,
           'text': data.doc.text,
@@ -220,7 +272,6 @@ var WikiGraph = BaseView.extend({
           'categories': data.doc.categories,
           'links': data.doc.links
         })
-        console.log(that.model)
         that.initNodes()
       },
       error: function(data){
@@ -228,18 +279,33 @@ var WikiGraph = BaseView.extend({
       }
     });
   },
+  vectorRequest: function (query) {
+    that = this
+    $.ajax({
+      type: 'GET',
+      data: "root=" + query,
+      url: '/vectors/',
+      dataType: 'json',
+      async: true,
+      success: function(data){
+        that.applyVectors(data)
+      },
+      error: function(data){
+        console.log('Request Failed');
+      }
+    });
+  },
   initNodes:function(){
-    console.log(this)
     nodeLength = (this.graphNodeCount < this.model.get('links').length) ? this.graphNodeCount : this.model.get('links').length
     for ( var i=0; i < nodeLength; i++){
-      link = this.model.get('links')[i][0]
+      link = this.model.get('links')[i]
       node = new this.node(link, i)
       this.nodes.push(node)
     }
   },
   initGraph:function(){
-    this.xWidth = that.$('#graphWrapper').width()
-    this.yHeight = that.$('#graphWrapper').height()
+    this.xWidth = that.$el.width() * 0.7
+    this.yHeight = that.$el.height()
     this.xOrigin = this.xWidth/2
     this.yOrigin = this.yHeight/2
 
@@ -252,18 +318,47 @@ var WikiGraph = BaseView.extend({
 
     for ( var i=0; i < this.nodes.length; i++){
       node = this.nodes[i]
-      $(node.id).css('position', 'absolute')
+      $('#' + node.id).css('position', 'absolute')
       theta = (pieSliceDegree*i-90)/180 * Math.PI
       x = Math.cos(theta)
       y = Math.sin(theta)
-      xScale = Math.random() * 90
-      yScale = Math.random() * 90
-      // xScale = yScale = 80
+      // xScale = Math.random() * 90
+      // yScale = Math.random() * 90
+      xScale = yScale = 80
       node.placeNodeCoord(x*xScale, y*yScale)
     }
+  },
+  applyVectors:function(vectors){
+    maxX = 0
+    maxY = 0
+    for( var i = 0; i< vectors.length; i++){
+      vector = vectors[i]
+      x = Math.abs(vector[0])
+      y = Math.abs(vector[1])
+      maxX = (maxX < x ) ? x : maxX
+      maxY = (maxY < y ) ? y : maxY
+    }
 
+    this.xScale = this.xWidth / (2* maxX) * 3/4
+    this.yScale = this.yHeight / (2 * maxY) * 3/4
+
+    for( var i = 0; i< this.nodes.length; i++){
+      node = this.nodes[i]
+      vector = vectors[i]
+      x = vector[0]
+      y = vector[1]
+      node.changeNodeCoord(x,y)
+    }
+  },
+  acquireNodeByID: function(id){
+    for( var i = 0; i < this.nodes.length; i++){
+      node = this.nodes[i]
+      if(id == node.id)
+        return node 
+    }
+    return null
   }
-});
+  });
 
 var WikiNode = BaseView.extend({
   el: 'div',
@@ -274,13 +369,15 @@ var WikiNode = BaseView.extend({
     this.rootTitle = data.graph.model.get('title')
     this.model = new WikiDoc({
       'id': data.id,
+      'idNode': data.idNode,
       'name': data.name, 
       'title': data.text,
+      'contextSentence': data.context,
       'radius': data.radius,
       'expanded':data.expanded
     })
 
-    this.nodeRequest(this.rootTitle, this.model.get('name'), this.model.get('id') + ' .wikiNode')    
+    this.nodeRequest(this.rootTitle, this.model.get('name'), "#" + this.model.get('id') + ' .wikiNode')    
 
     this.on("assign", this.animateIn);
     this.template = loadTemplate("/static/views/wikinode.html");
@@ -290,7 +387,7 @@ var WikiNode = BaseView.extend({
     theOtherThing = this
     $.ajax({
       type: 'GET',
-      data: "root=" + escape(rootTitle) + '&node=' + escape(nodeTitle) ,
+      data: "root=" + rootTitle + '&node=' + nodeTitle ,
       url: '/node/',
       dataType: 'json',
       async: true,
@@ -300,7 +397,7 @@ var WikiNode = BaseView.extend({
           'thumbSmall': data.thumbSmall
         })
         $(target).css(
-          'background', 'rgba(240,240,240,1) url(' + theOtherThing.model.get('thumbSmall') + ') no-repeat center center'
+          'background', 'rgba(0,0,0,1) url(' + theOtherThing.model.get('thumbSmall') + ') no-repeat center center'
         )
       },
       error: function(data){

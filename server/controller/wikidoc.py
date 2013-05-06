@@ -18,23 +18,18 @@ class WikiDoc():
   		#Best Match from wikipedia
 		self.pageTitle = self.searchResults['query']['search'][0]['title']
 		self.markup = self.queryMarkup(self.pageTitle)
-  		#Footer is filled in articleBody, using this subset of text decreases runtime
-		self.footer = ''
-  		self.textAndLinks = self.preFormat(self.markup, self.pageTitle)
-  		
-  		#Nicely formatted text for front end
-  		self.summary = self.firstSentences(self.textAndLinks)
+  		self.textAndLinks, self.footer = self.preFormat(self.markup, self.pageTitle)
 
   		#Document General data
-  		self.links = self.docLinks(self.textAndLinks)
+  		self.links, self.linkIndexDict, self.sentences = self.linksAndSentences(self.textAndLinks)
   		self.sortLinks = sorted(self.hashMap(self.links).iteritems(), key=lambda item: -item[1])
+  		self.linkObjects = self.constructLinks(self.linkIndexDict, self.sortLinks, self.sentences)
   		self.text = self.rawText(self.textAndLinks)
   		self.categories = self.docCategories(self.footer)
   		self.languageModel = self.languageModel(self.text)
 		
 		#Image Acquisition
 		self.images = self.imageURLS(self.pageTitle)
-		print len(self.images)
 		self.randomImage = ''
 		self.randomImageURL = ''
 	  	if len(self.images) > 0:
@@ -45,9 +40,9 @@ class WikiDoc():
 		jsonGoodies = {
 			'title': self.pageTitle,
 			'text': self.text,
-			'summary': self.summary,
+			'summary': self.sentences[:5],
 			'languageModel': self.languageModel,
-			'links': self.sortLinks,
+			'links': self.linkObjects,
 			'categories': self.categories,
 			'images': self.images,
 			'randomImage': self.randomImage
@@ -93,39 +88,43 @@ class WikiDoc():
 
   	def preFormat(self, text, pageTitle):
   		wikimarkup = text
-  		# print wikimarkup[:500].encode('ascii', 'ignore')
-   		wikimarkup = self.articleBody(wikimarkup,pageTitle)
-  		# print wikimarkup[:500].encode('ascii', 'ignore')
+   		wikimarkup, footer = self.articleBody(wikimarkup,pageTitle)
   		wikimarkup = self.removeCitationRefs(wikimarkup)
-  		# print wikimarkup[:500].encode('ascii', 'ignore')
 		wikimarkup = self.tagParse('{{', '}}', wikimarkup, 'delete')
-  		# print wikimarkup[:500].encode('ascii', 'ignore')
 		wikimarkup = self.removeCitationRefs(wikimarkup)		
 		wikimarkup = self.removeComments(wikimarkup)
 		wikimarkup = self.removeImages(wikimarkup)
 		wikimarkup = re.sub('\\n','',wikimarkup)
-		return wikimarkup
+		return (wikimarkup, footer)
 
-	def firstSentences(self, text):
-  		if text == '':
-			return []
-  		wikimarkup = text
-		sentences = text.split('.')
-		summary = ''
-  		for sentence in sentences[:4]:
+	def linksAndSentences(self, text):
+		links = []
+  		linkIndices = {}
+  		sentences = []
+		sentenceArray = text.split('. ')
+  		for sentenceIndex, sentence in enumerate(sentenceArray):
+  			linksInSentence = re.findall('.*?\[\[(.*?)\]\].*?',sentence)
+  			for i, link in enumerate(linksInSentence):
+  				title = link.split('|')[0].lower()
+  				linkIndices[title] = sentenceIndex
+  				links.append(title)
   			sentence = re.sub('\[\[[^]]*?\|', '', sentence)
-  			sentence = re.sub('[\[\]\{\}\']', '', sentence)
-  			summary += sentence +'. '
-  		return summary
+  			sentence = re.sub('==[\S\s]*?==', '', sentence)
+  			sentence = re.sub('[\[\]\{\}]', '', sentence)
+			sentence = re.sub('[^\w\s(\'\'),&]', ' ', sentence)
+  			sentence += '. '
+  			sentences.append(sentence)
+  		return (links, linkIndices, sentences)
 
-	def docLinks(self, text):
-		if text == '':
-			return []
-  		wikimarkup = text
-		links = re.findall('.*?\[\[(.*?)\]\].*?',wikimarkup)
-		for i, link in enumerate(links):
-			links[i] = link.split('|')[0].lower()
-  		return links
+	def constructLinks(self, linkIndices, sortLinks, sentences):
+		linkObjects = []
+		for i, link in enumerate(sortLinks):
+			linkObject = {}
+			linkObject['title'] = link[0]
+			linkObject['count'] = link[1]
+			linkObject['sentences'] = sentences[linkIndices[link[0]]] 
+			linkObjects.append(linkObject)
+		return linkObjects
 
   	def docCategories(self, text):
   		if text == '':
@@ -195,6 +194,7 @@ class WikiDoc():
 		"""
 		page = text.split("'''"+pageTitle+"'''")
 		body = page[-1]
+		footer = ''
 		referenceTags = [
 			"==References==",
 			"== References =="
@@ -203,8 +203,8 @@ class WikiDoc():
 			page = body.split(referenceTag)
 			body = page[0]
 			if len(page) > 1:
-				self.footer = page[1]
-		return body
+				footer = page[1]
+		return (body,footer)
 
 	def tagParse(self, openingTag, closingTag, text, action):
 		"""
@@ -417,10 +417,13 @@ class WikiDoc():
 		return r
 
 if __name__ == '__main__':
-	query = "people's liberation army"
+	query = "Beijing"
 	wikipedia = WikiDoc(query)
-	# for link in wikipedia.links:
-	# 	print link
+	# for link in wikipedia.sortLinks:
+	# 	print link, wikipedia.linkIndexDict[link[0]]
+	# 	print wikipedia.sentences[wikipedia.linkIndexDict[link[0]]]
+	# for key,value in wikipedia.links.iteritems():
+	# 	print key.encode('ascii', 'ignore'), value
 	# for category in wikipedia.categories:
 	# 	print category
 

@@ -1,8 +1,9 @@
 <link href="/static/css/wikidetail.css" rel="stylesheet" type="text/css">
 <style>
 	<% 
+		imageURL = ''
 		if(image = model.get('image')){
-			imageURL = image['thumbBig']
+			imageURL = image['thumbBig']			
 		}
 
 	%>
@@ -22,21 +23,8 @@
 			<p class='readableText'><%=model.get('summary')%></p>
 		</div>
 	</div>
-	<!-- <div class='detailTableWrapper'>
-		<div class='detailCategoryWrapper'>
-			<div class='categoryHeader'>
-				<h3>Categories<h2>
-			</div>
-			<div id='detailCategories' class='table'>
-			</div>
-		</div>
-		<div class='detailLinkWrapper'>
-			<div class='linkHeader'>
-				<h3>Links<h2>
-			</div>
-			<div id='detailLinks' class='table'>
-			</div>
-		</div>
-	</div> -->
+	<div>
+
+	</div>
 </div>
 

@@ -3,7 +3,7 @@
 	<% 
 		diameter = 2*model.get('radius')
 	%>
-	.wikiNodeContainer{
+	.wikiNodeContainer .nodeTitleWrapper{
 		line-height: <%=model.get('expanded')%>px;
 	}
 	.wikiNode{
@@ -20,11 +20,15 @@
 		line-height: <%=diameter%>px;
 	}
 </style>
+<% console.log(model) %>
 <div class='wikiNodeContainer'>
-	<div class="wikiNode">
+	<div class="wikiNode" id="<%=model.get('idNode')%>">
 		<div class='backgroundFilter'>
 			<div class="nodeTitleWrapper">
 				<span class='linkText'><%=model.get('title')%></span>
+			</div>
+			<div class="contextSentence">
+				<%=model.get('contextSentence')%>
 			</div>
 		</div>
 	</div>
