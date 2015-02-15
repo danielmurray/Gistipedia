@@ -1,7 +1,6 @@
 Gistipedia: Multidimensional Wikipedia Exploration
 ===========
 
-CS 410 Final Project
 - Daniel Murray
 - Robert Stein
 - Vignesh Raja
